@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>매물 카탈로그</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{--ink:#14201f;--sub:#5d6b69;--line:#dde4e2;--bg:#f2f5f4;--main:#0f5c4d;--main-soft:#e0efeb;--price:#b4381e}
+  body{font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:env(safe-area-inset-bottom)}
+  .slider{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .slider::-webkit-scrollbar{display:none}
+  .slide{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:4/5;background:#e6ecea}
+  .slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .chip{padding:.4rem .8rem;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:.8rem;white-space:nowrap}
+  .chip.on{background:var(--main);border-color:var(--main);color:#fff;font-weight:700}
+  .tab{flex:1;padding:.7rem 0;font-size:.9rem;color:var(--sub);border-bottom:3px solid transparent;font-weight:500}
+  .tab.on{color:var(--main);border-color:var(--main);font-weight:900}
+  .num{width:100%;border:1px solid var(--line);border-radius:.6rem;padding:.55rem .6rem;font-size:.9rem;background:#fff}
+  .num:focus,.chip:focus-visible,.tab:focus-visible,button:focus-visible{outline:2px solid var(--main);outline-offset:2px}
+  .hscroll{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none}
+  .hscroll::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+<script>
+/* ============ 설정 영역: 여기만 수정하세요 ============ */
+const CONFIG = {
+  // 구글 시트 > 파일 > 공유 > 웹에 게시 > CSV 로 받은 링크를 따옴표 안에 붙여넣기
+  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbMZKKPwauBMpxxaghe0X3MrBg8q7fNpbQjRf0Se4QoSHUVupQNAgVJBL_8LLceWI3MoXF_1ClhGtY/pub?gid=2111395519&single=true&output=csv",
+  SITE_TITLE: "우리동네 부동산 매물",
+  PHONE: "",            // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
+  ACTIVE_WORD: "진행중"  // 이 값인 행만 표시
+};
+/* ====================================================== */
+</script>
+
+<header class="sticky top-0 z-30 bg-white border-b" style="border-color:var(--line);padding-top:env(safe-area-inset-top)">
+  <div class="flex items-center justify-between px-4 pt-3">
+    <h1 id="siteTitle" class="text-lg font-black"></h1>
+    <a id="callBtn" class="hidden text-sm font-bold text-white rounded-full px-3 py-1.5" style="background:var(--main)">전화 문의</a>
+  </div>
+  <div class="px-4 pt-2">
+    <input id="kw" type="search" placeholder="지역명, 특징으로 검색" class="num" style="background:var(--bg)">
+  </div>
+  <div id="dealTabs" class="flex mt-1 px-2"></div>
+</header>
+
+<section class="bg-white border-b" style="border-color:var(--line)">
+  <div class="px-4 py-2.5">
+    <div id="typeChips" class="hscroll"></div>
+    <div class="flex items-center justify-between mt-2.5">
+      <button id="togglePrice" class="text-sm font-bold" style="color:var(--main)">금액 설정 ▾</button>
+      <button id="reset" class="text-xs" style="color:var(--sub)">필터 초기화</button>
+    </div>
+  </div>
+  <div id="pricePanel" class="hidden px-4 pb-4 space-y-4">
+    <div>
+      <p id="depLabel" class="text-sm font-bold mb-1.5">보증금</p>
+      <div class="flex items-center gap-2">
+        <input id="depMin" type="number" inputmode="numeric" min="0" placeholder="최소(만원)" class="num">
+        <span>~</span>
+        <input id="depMax" type="number" inputmode="numeric" min="0" placeholder="최대(만원)" class="num">
+      </div>
+      <div id="depQuick" class="hscroll mt-2"></div>
+    </div>
+    <div id="rentBox">
+      <p class="text-sm font-bold mb-1.5">월세</p>
+      <div class="flex items-center gap-2">
+        <input id="rentMin" type="number" inputmode="numeric" min="0" placeholder="최소(만원)" class="num">
+        <span>~</span>
+        <input id="rentMax" type="number" inputmode="numeric" min="0" placeholder="최대(만원)" class="num">
+      </div>
+      <div id="rentQuick" class="hscroll mt-2"></div>
+    </div>
+  </div>
+</section>
+
+<main class="max-w-md mx-auto">
+  <p id="count" class="px-4 pt-3 pb-1 text-sm" style="color:var(--sub)"></p>
+  <div id="list" class="space-y-3 pb-10"></div>
+  <p id="msg" class="px-6 py-16 text-center text-sm" style="color:var(--sub)"></p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = parseInt(String(v ?? "").replace(/[^0-9]/g, ""), 10); return isNaN(n) ? 0 : n; };
+
+const DEALS = ["전체","월세","전세","매매","상가"];
+const TYPES = ["전체","아파트","원룸","투룸","쓰리룸"];
+const DEP_QUICK = [["전체",null,null],["~500",0,500],["500~1000",500,1000],["1000~3000",1000,3000],["3000~",3000,null]];
+const RENT_QUICK = [["전체",null,null],["~30",0,30],["30~50",30,50],["50~100",50,100],["100~",100,null]];
+
+let all = [];
+const F = { deal:"전체", type:"전체", kw:"", depMin:null, depMax:null, rentMin:null, rentMax:null };
+
+/* ---------- CSV 파서 (따옴표/줄바꿈 처리) ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", q=false;
+  text = text.replace(/^\uFEFF/, "");
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else if(c==='"') q=true;
+    else if(c===','){ row.push(cur); cur=""; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n')i++; row.push(cur); cur=""; rows.push(row); row=[]; }
+    else cur+=c;
+  }
+  if(cur!==""||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(x=>x.trim()!==""));
+}
+
+/* ---------- 헤더 이름 유연 매칭 ---------- */
+function colIndex(headers, keys){
+  for(const k of keys){ const i=headers.findIndex(h=>h.replace(/\s/g,"").includes(k)); if(i>=0) return i; }
+  return -1;
+}
+
+function driveThumb(url){
+  url = url.trim();
+  const m = url.match(/[?&]id=([\w-]+)/) || url.match(/\/d\/([\w-]+)/);
+  return m ? "https://drive.google.com/thumbnail?id="+m[1]+"&sz=w1000" : url;
+}
+
+function toItems(rows){
+  const h = rows[0].map(x=>x.trim());
+  const ix = {
+    status: colIndex(h,["상태"]), deal: colIndex(h,["거래유형","거래"]), type: colIndex(h,["매물종류","종류"]),
+    area: colIndex(h,["지역","위치","주소"]), dep: colIndex(h,["보증금","매매가","가격"]),
+    rent: colIndex(h,["월세"]), fee: colIndex(h,["관리비"]), memo: colIndex(h,["특징","메모"]),
+    photo: colIndex(h,["사진","이미지","파일"])
+  };
+  const get=(r,i)=> i>=0 ? (r[i]||"").trim() : "";
+  return rows.slice(1).map(r=>({
+    status:get(r,ix.status), deal:get(r,ix.deal), type:get(r,ix.type), area:get(r,ix.area),
+    dep:num(get(r,ix.dep)), rent:num(get(r,ix.rent)), fee:num(get(r,ix.fee)), memo:get(r,ix.memo),
+    photos:get(r,ix.photo).split(",").map(s=>s.trim()).filter(Boolean).map(driveThumb)
+  })).filter(x=>(x.status===CONFIG.ACTIVE_WORD||x.status==="") && (x.deal||x.area||x.memo));
+}
+
+/* ---------- 금액 표기 ---------- */
+function won(n){
+  if(n>=10000){ const e=Math.floor(n/10000), r=n%10000; return e+"억"+(r?" "+r.toLocaleString():""); }
+  return n.toLocaleString();
+}
+function priceText(x){
+  if(x.deal==="월세") return `월세 ${won(x.dep)} / ${x.rent.toLocaleString()}`;
+  if(x.deal==="전세") return `전세 ${won(x.dep)}`;
+  if(x.deal==="매매") return `매매 ${won(x.dep)}`;
+  return `${x.deal||"상가"} ${won(x.dep)}${x.rent?` / ${x.rent.toLocaleString()}`:""}`;
+}
+
+/* ---------- 필터링 ---------- */
+const inRange=(v,min,max)=> (min==null||v>=min) && (max==null||v<=max);
+function filtered(){
+  const kw=F.kw.trim().toLowerCase();
+  return all.filter(x=>{
+    if(F.deal!=="전체" && x.deal!==F.deal) return false;
+    if(F.type!=="전체" && x.type!==F.type) return false;
+    if(kw && !(x.area+" "+x.memo+" "+x.type+" "+x.deal).toLowerCase().includes(kw)) return false;
+    if(!inRange(x.dep,F.depMin,F.depMax)) return false;
+    if((F.rentMin!=null||F.rentMax!=null) && !inRange(x.rent,F.rentMin,F.rentMax)) return false;
+    return true;
+  });
+}
+
+/* ---------- 카드 렌더링 ---------- */
+const FALLBACK = `<svg viewBox="0 0 400 500" class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="500" fill="#e0efeb"/><rect x="110" y="190" width="180" height="150" fill="#fff" stroke="#0f5c4d" stroke-width="6"/><path d="M95 195 L200 120 L305 195" fill="#0f5c4d"/><rect x="175" y="260" width="50" height="80" fill="#0f5c4d"/><text x="200" y="400" text-anchor="middle" font-size="22" fill="#5d6b69" font-family="sans-serif">사진 준비중</text></svg>`;
+
+function card(x,i){
+  const n=x.photos.length;
+  const slides = n ? x.photos.map((p,k)=>`<div class="slide">${`<img src="${esc(p)}" alt="" loading="${k?'lazy':'eager'}" referrerpolicy="no-referrer" onerror="this.parentNode.innerHTML=window.FALLBACK_SVG">`}</div>`).join("") : `<div class="slide">${FALLBACK}</div>`;
+  const dots = n>1 ? `<div class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 dots">${x.photos.map((_,k)=>`<span class="rounded-full ${k?'bg-white/60':'bg-white'}" style="width:6px;height:6px"></span>`).join("")}</div>` : "";
+  const badge = n>1 ? `<span class="pg absolute top-3 right-3 text-xs font-bold text-white rounded-full px-2.5 py-1" style="background:rgba(0,0,0,.55)">1/${n}</span>` : "";
+  const arrows = n>1 ? `<button class="prev hidden md:block absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full w-8 h-8" aria-label="이전 사진">‹</button><button class="next hidden md:block absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full w-8 h-8" aria-label="다음 사진">›</button>` : "";
+  return `<article class="bg-white" data-n="${n}">
+    <div class="relative"><div class="slider">${slides}</div>${badge}${dots}${arrows}</div>
+    <div class="px-4 py-3.5">
+      <div class="flex items-center gap-1.5 text-xs mb-1.5">
+        <span class="font-bold text-white rounded px-1.5 py-0.5" style="background:var(--main)">${esc(x.deal)}</span>
+        <span class="font-bold rounded px-1.5 py-0.5" style="background:var(--main-soft);color:var(--main)">${esc(x.type)}</span>
+        <span style="color:var(--sub)">${esc(x.area)}</span>
+      </div>
+      <p class="text-xl font-black" style="color:var(--price)">${priceText(x)}</p>
+      ${x.fee?`<p class="text-sm mt-0.5" style="color:var(--sub)">관리비 ${x.fee.toLocaleString()}만</p>`:""}
+      ${x.memo?`<p class="text-sm mt-2 leading-relaxed">${esc(x.memo)}</p>`:""}
+    </div>
+  </article>`;
+}
+window.FALLBACK_SVG = FALLBACK;
+
+function render(){
+  const items=filtered();
+  $("list").innerHTML = items.map(card).join("");
+  $("count").textContent = items.length ? `매물 ${items.length}건` : "";
+  $("msg").textContent = items.length ? "" : (all.length ? "조건에 맞는 매물이 없어요. 필터를 줄여 보세요." : "");
+  document.querySelectorAll("#list article").forEach(bindSlider);
+}
+
+function bindSlider(art){
+  const s=art.querySelector(".slider"), n=+art.dataset.n; if(n<2) return;
+  const pg=art.querySelector(".pg"), dots=art.querySelectorAll(".dots span");
+  const go=d=>s.scrollBy({left:d*s.clientWidth,behavior:"smooth"});
+  s.addEventListener("scroll",()=>{
+    const i=Math.round(s.scrollLeft/s.clientWidth);
+    pg.textContent=`${i+1}/${n}`;
+    dots.forEach((d,k)=>{d.className="rounded-full "+(k===i?"bg-white":"bg-white/60")});
+  },{passive:true});
+  art.querySelector(".prev").onclick=()=>go(-1);
+  art.querySelector(".next").onclick=()=>go(1);
+}
+
+/* ---------- 필터 UI ---------- */
+function drawTabs(){
+  $("dealTabs").innerHTML = DEALS.map(d=>`<button class="tab ${F.deal===d?'on':''}" data-d="${d}">${d}</button>`).join("");
+  $("dealTabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{F.deal=b.dataset.d;syncPriceUI();drawTabs();render();});
+}
+function drawChips(){
+  $("typeChips").innerHTML = TYPES.map(t=>`<button class="chip ${F.type===t?'on':''}" data-t="${t}">${t}</button>`).join("");
+  $("typeChips").querySelectorAll("button").forEach(b=>b.onclick=()=>{F.type=b.dataset.t;drawChips();render();});
+}
+function drawQuick(){
+  const mk=(box,list,minK,maxK,minI,maxI)=>{
+    $(box).innerHTML=list.map(([l,a,b],i)=>`<button class="chip ${F[minK]===a&&F[maxK]===b?'on':''}" data-i="${i}">${l}</button>`).join("");
+    $(box).querySelectorAll("button").forEach(btn=>btn.onclick=()=>{
+      const [,a,b]=list[+btn.dataset.i]; F[minK]=a;F[maxK]=b;
+      $(minI).value=a??"";$(maxI).value=b??"";drawQuick();render();
+    });
+  };
+  mk("depQuick",DEP_QUICK,"depMin","depMax","depMin","depMax");
+  mk("rentQuick",RENT_QUICK,"rentMin","rentMax","rentMin","rentMax");
+}
+function syncPriceUI(){
+  $("depLabel").textContent = F.deal==="매매" ? "매매가" : F.deal==="전세" ? "전세금" : "보증금";
+  const showRent = F.deal==="전체"||F.deal==="월세"||F.deal==="상가";
+  $("rentBox").classList.toggle("hidden",!showRent);
+  if(!showRent){F.rentMin=F.rentMax=null;$("rentMin").value=$("rentMax").value="";drawQuick();}
+}
+function bindNumber(id,key){
+  $(id).addEventListener("input",e=>{F[key]=e.target.value===""?null:Number(e.target.value);drawQuick();render();});
+}
+
+$("kw").addEventListener("input",e=>{F.kw=e.target.value;render();});
+bindNumber("depMin","depMin");bindNumber("depMax","depMax");
+bindNumber("rentMin","rentMin");bindNumber("rentMax","rentMax");
+$("togglePrice").onclick=()=>{
+  const p=$("pricePanel"); p.classList.toggle("hidden");
+  $("togglePrice").textContent = p.classList.contains("hidden") ? "금액 설정 ▾" : "금액 설정 ▴";
+};
+$("reset").onclick=()=>{
+  Object.assign(F,{deal:"전체",type:"전체",kw:"",depMin:null,depMax:null,rentMin:null,rentMax:null});
+  ["kw","depMin","depMax","rentMin","rentMax"].forEach(i=>$(i).value="");
+  syncPriceUI();drawTabs();drawChips();drawQuick();render();
+};
+
+/* ---------- 데이터 로딩 ---------- */
+async function load(){
+  $("siteTitle").textContent = CONFIG.SITE_TITLE;
+  document.title = CONFIG.SITE_TITLE;
+  if(CONFIG.PHONE){ const a=$("callBtn"); a.href="tel:"+CONFIG.PHONE.replace(/[^0-9+]/g,""); a.classList.remove("hidden"); }
+  drawTabs();drawChips();drawQuick();syncPriceUI();
+  if(!CONFIG.CSV_URL.startsWith("http")){ $("msg").textContent="설정 영역(CONFIG)에 구글 시트 CSV 링크를 붙여넣어 주세요."; return; }
+  $("msg").textContent="매물을 불러오는 중이에요…";
+  try{
+    const url = CONFIG.CSV_URL + (CONFIG.CSV_URL.includes("?")?"&":"?") + "t=" + Date.now(); // 캐시 우회
+    const res = await fetch(url,{cache:"no-store"});
+    if(!res.ok) throw new Error(res.status);
+    const rows = parseCSV(await res.text());
+    all = rows.length>1 ? toItems(rows) : [];
+    $("msg").textContent = all.length ? "" : "현재 진행중인 매물이 없어요.";
+    render();
+  }catch(e){
+    $("msg").textContent="매물을 불러오지 못했어요. 잠시 후 새로고침해 주세요.";
+  }
+}
+load();
+</script>
+</body>
+</html>
