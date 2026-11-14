@@ -27,7 +27,7 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
 <script>
 /* ============ [사장님 설정 영역] 구글 시트 CSV 링크를 붙여넣으세요 ============ */
 const CONFIG = {
-  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbMZKKPwauBMpxxaghe0X3MrBg8q7fNpbQjRf0Se4QoSHUVupQNAgVJBL_8LLceWI3MoXF_1ClhGtY/pub?gid=2111395519&single=true&output=csv",              // 비워두면 샘플 매물 2개가 표시됩니다 (디자인 확인용)
+  CSV_URL: "",              // 비워두면 샘플 매물 2개가 표시됩니다 (디자인 확인용)
   PHONE: "",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
   ACTIVE_WORD: "진행중",    // 상태가 이 값이면 표시. '거래완료', '삭제' 등은 숨김
   SHOW_BLANK_STATUS: true   // true: 상태가 비어 있어도 표시
@@ -292,15 +292,30 @@ function openModal(x){
   $("mMemo").textContent=x.memo||"등록된 상세 메모가 없습니다.";
   const n=x.photos.length;
   if(n){
+    const arrow=(cls,side,ic,label)=>`<button type="button" id="${cls}" class="absolute ${side} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-slate-800 flex items-center justify-center shadow-md z-10" aria-label="${label}"><i class="ph-bold ${ic} text-base"></i></button>`;
     $("mMedia").innerHTML=`<div id="mTrack" class="carousel-track no-scrollbar w-full h-full">${x.photos.map((p,k)=>`<div class="carousel-slide w-full h-full bg-slate-900"><img src="${esc(p)}" alt="확대 사진 ${k+1}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.parentElement.innerHTML=FB('${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("")}</div>`
-      +(n>1?`<div id="mPg" class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-bold z-10">1/${n}</div>`:"");
-    if(n>1){const t=$("mTrack");t.addEventListener("scroll",()=>{$("mPg").textContent=`${Math.round(t.scrollLeft/t.clientWidth)+1}/${n}`},{passive:true})}
+      +(n>1?`<div id="mPg" class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-bold z-10">1/${n}</div>
+        ${arrow("mPrev","left-2.5","ph-caret-left","이전 사진")}${arrow("mNext","right-2.5","ph-caret-right","다음 사진")}
+        <div id="mDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/30 z-10 pointer-events-none">${x.photos.map((_,k)=>`<span class="h-1.5 rounded-full transition-all ${k?'w-1.5 bg-white/50':'w-3 bg-white'}"></span>`).join("")}</div>`:"");
+    if(n>1){
+      const t=$("mTrack"), go=d=>t.scrollBy({left:d*t.clientWidth,behavior:"smooth"});
+      t.addEventListener("scroll",()=>{const i=Math.round(t.scrollLeft/t.clientWidth);
+        $("mPg").textContent=`${i+1}/${n}`;
+        $("mDots").querySelectorAll("span").forEach((d,k)=>{d.className="h-1.5 rounded-full transition-all "+(k===i?"w-3 bg-white":"w-1.5 bg-white/50")})},{passive:true});
+      $("mPrev").onclick=()=>go(-1); $("mNext").onclick=()=>go(1);
+    }
   } else $("mMedia").innerHTML=fallback(x.type);
+
   $("modal").classList.remove("hidden");document.body.style.overflow="hidden";$("mOk").focus();
 }
 function closeModal(){$("modal").classList.add("hidden");document.body.style.overflow=""}
 ["mBack","mX","mOk"].forEach(id=>$(id).onclick=closeModal);
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape")closeModal();
+  if($("modal").classList.contains("hidden"))return;
+  if(e.key==="ArrowLeft"&&$("mPrev"))$("mPrev").click();
+  if(e.key==="ArrowRight"&&$("mNext"))$("mNext").click();
+});
 
 /* ---------- 필터 UI ---------- */
 function drawTx(){
