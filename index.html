@@ -5,16 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- 검색 엔진 노출 차단 (링크 보유자 전용) -->
 <meta name="robots" content="noindex, nofollow">
-<title>와방 | 공인중개사 이하늘</title>
+<title>하우지 | 공인중개사 이지우</title>
 <!-- 링크 미리보기(카톡/문자/SNS): og.jpg 를 index.html 과 같은 폴더에 두고,
      아래 og:image 주소의 "여기에_내사이트주소" 를 실제 배포 주소(예: my-wabang.netlify.app)로 바꾸세요 -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="와방">
-<meta property="og:title" content="와방 | 공인중개사 이하늘">
+<meta property="og:site_name" content="하우지">
+<meta property="og:title" content="하우지 | 공인중개사 이지우">
 <meta property="og:description" content="매매 · 전세 · 월세 매물을 사진으로 한눈에 확인하세요">
-<meta property="og:url" content="https://skylee-lang.github.io/wa-bang/">
-<meta property="og:image" content="https://skylee-lang.github.io/wa-bang/og.jpg">
-<meta property="og:image:secure_url" content="https://skylee-lang.github.io/wa-bang/og.jpg">
+<meta property="og:image" content="https://skylee-lang.github.io/wa-bang/jeonpo1.jpg">
+<meta property="og:image:secure_url" content="https://skylee-lang.github.io/wa-bang/jeonpo1.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -38,7 +37,7 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
   .carousel-slide{position:relative}
   .carousel-track img,#mMedia img{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .carousel-track,#mMedia{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-  .carousel-slide::after{content:"";position:absolute;inset:0;z-index:2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Cg transform='rotate(-24 130 85)' font-family='sans-serif' font-size='17' font-weight='700' text-anchor='middle'%3E%3Ctext x='131' y='86' fill='rgba(0,0,0,.22)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3Ctext x='130' y='85' fill='rgba(255,255,255,.55)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat}
+    .carousel-slide::after{content:"";position:absolute;inset:0;z-index:2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Cg transform='rotate(-24 130 85)' font-family='sans-serif' font-size='17' font-weight='700' text-anchor='middle'%3E%3Ctext x='131' y='86' fill='rgba(0,0,0,.22)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3Ctext x='130' y='85' fill='rgba(255,255,255,.55)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat}
   @media print{body{display:none!important}}
   button:focus-visible,input:focus-visible{outline:2px solid #0284C7;outline-offset:2px}
 </style>
@@ -47,8 +46,8 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
 <script>
 /* ============ [사장님 설정 영역] 구글 시트 CSV 링크를 붙여넣으세요 ============ */
 const CONFIG = {
-  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbMZKKPwauBMpxxaghe0X3MrBg8q7fNpbQjRf0Se4QoSHUVupQNAgVJBL_8LLceWI3MoXF_1ClhGtY/pub?gid=2111395519&single=true&output=csv",              // 비워두면 샘플 매물 2개가 표시됩니다 (디자인 확인용)
-  PHONE: "",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
+  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQvtWYASv36tk8-2ThheDiPSkCHeN_nc4FD99PDb5YFlMMKw_h9dGGMPadjPbUxKpu9zfuf8Tj3QJLY/pub?gid=2138382865&single=true&output=csv",              // 비워두면 샘플 매물 2개가 표시됩니다 (디자인 확인용)
+  PHONE: "010-4540-3232",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
   ACTIVE_WORD: "진행중",    // 상태가 이 값이면 표시. '거래완료', '삭제' 등은 숨김
   SHOW_BLANK_STATUS: true,  // true: 상태가 비어 있어도 표시
   SHOW_DONE: true           // true: 거래완료 매물을 회색으로 표시 / false: 완전히 숨김
@@ -59,17 +58,17 @@ const CONFIG = {
 <div class="max-w-md mx-auto min-h-screen bg-[#F5FAFF] shadow-xl shadow-sky-900/5 relative pb-20">
 
   <!-- 상단 배너: banner.jpg 를 index.html 과 같은 폴더에 두세요 (없으면 자동으로 숨겨집니다) -->
-  <img src="banner.jpg" alt="와방 - 내가 찾는 집, 이제는 와방에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto" onerror="this.remove()">
+  <img src="banner.jpg" alt="하우지 - 내가 찾는 집, 이제는 하우지에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto" onerror="this.remove()">
 
   <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-wabang-100 px-4 pt-3.5 pb-3" style="padding-top:max(.875rem,env(safe-area-inset-top))">
     <div class="flex items-center justify-between mb-3">
-      <a href="./" id="homeBtn" class="flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
+      <a href="./" id="homeBtn" class="flex items-center gap-2" aria-label="하우지 홈으로 (필터 초기화)">
         <div class="w-9 h-9 rounded-xl bg-wabang-600 flex items-center justify-center shadow-sm shadow-sky-200 shrink-0" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 3.2 2.8 11.1a1 1 0 0 0 .65 1.76H5V20a1 1 0 0 0 1 1h4.2v-5.6h3.6V21H18a1 1 0 0 0 1-1v-7.14h1.55a1 1 0 0 0 .65-1.76L12 3.2Z"/></svg>
         </div>
         <div class="flex items-center gap-1.5">
-          <h1 class="text-xl font-extrabold tracking-tight text-slate-900">와방</h1>
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-wabang-100 text-wabang-600 whitespace-nowrap">공인중개사 이하늘</span>
+          <h1 class="text-xl font-extrabold tracking-tight text-slate-900">하우지</h1>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-wabang-100 text-wabang-600 whitespace-nowrap">공인중개사 이지우</span>
         </div>
       </a>
       <div class="flex items-center gap-2">
@@ -92,7 +91,7 @@ const CONFIG = {
     </div>
     <div>
       <span class="block text-xs font-bold text-slate-500 mb-1.5">매물 종류 <span class="text-[11px] font-normal text-wabang-600">(중복 선택 가능)</span></span>
-      <div id="propBox" class="flex flex-wrap gap-1.5"></div>
+      <div id="propBox" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
     </div>
     <button id="petToggle" type="button" aria-pressed="false" class="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl border text-xs font-bold transition-all"></button>
     <div class="pt-1">
@@ -137,7 +136,7 @@ const CONFIG = {
 
   <div id="loading" class="py-16 text-center space-y-3">
     <div class="w-10 h-10 border-4 border-wabang-200 border-t-wabang-500 rounded-full animate-spin mx-auto"></div>
-    <p class="text-sm font-medium text-slate-500">와방 매물 리스트를 불러오는 중...</p>
+    <p class="text-sm font-medium text-slate-500">하우지 매물 리스트를 불러오는 중...</p>
   </div>
   <div id="empty" class="hidden px-6 py-20 text-center">
     <div class="w-16 h-16 rounded-3xl bg-wabang-100 text-wabang-500 flex items-center justify-center mx-auto mb-4"><i class="ph ph-magnifying-glass text-3xl"></i></div>
@@ -146,8 +145,14 @@ const CONFIG = {
     <button id="resetEmpty" class="px-5 py-2.5 rounded-2xl bg-wabang-600 text-white text-xs font-bold shadow-md shadow-sky-200 hover:bg-wabang-dark transition-all">모든 필터 초기화하기</button>
   </div>
   <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6">
-    <p class="font-bold text-slate-600 mb-1">와방 · 공인중개사 이하늘</p>
+    <p class="font-bold text-slate-600 mb-1">하우지 · 공인중개사 이지우</p>
     <p>본 페이지는 안내 링크를 전달받으신 고객님 전용 매물 카탈로그입니다.</p>
+    <p class="mt-2">삼한법무사공인중개사사무소</p>
+       <p>주소:부산진구 중앙대로821, 201동 B114호(범전동, 삼한골든뷰센트럴파크) </p>
+       <p>Tel: 010-4540-3332 공인중개사 이지우 </p>
+       <p>Tel: 051-711-8878</p>
+       <p>등록번호: 26230-2020-00043</p>
+       <p>소장: 신종한</p>
   </footer>
 </div>
 
@@ -191,7 +196,7 @@ const num=v=>{const n=parseInt(String(v??"").replace(/[^0-9]/g,""),10);return is
 const money=v=>{const n=parseFloat(String(v??"").replace(/,/g,"").replace(/[^0-9.]/g,""));return isNaN(n)?0:n};
 
 const DEAL_LIST=["월세","전세","매매","단기"], RENT_DEALS=["월세","단기"];
-const TYPES=["전체","아파트","오피스텔","원룸","투룸","쓰리룸","상가"];
+const TYPES=["전체","원룸","투룸","오피스텔","쓰리룸","아파트","상가"];
 const DEP_QUICK=[["~500만",null,500],["500~1000",500,1000],["1000~3000",1000,3000],["3000만~",3000,null]];
 const RENT_QUICK=[["~50만",null,50],["50~100만",50,100],["100~400만",100,400]];
 const QBTN="px-2 py-1 text-[11px] font-medium bg-white border border-slate-200 rounded-lg text-slate-600 hover:border-wabang-400 hover:text-wabang-600";
@@ -274,14 +279,8 @@ function filtered(){const kw=F.kw.trim().toLowerCase();
     return x.offers.some(offerOk)})}
 
 /* ---------- 카드 ---------- */
-function fallback(type){return `<div class="w-full h-full bg-gradient-to-br from-wabang-50 via-wabang-100/70 to-sky-100 flex flex-col items-center justify-center p-6 text-center select-none"><div class="w-16 h-16 rounded-3xl bg-white shadow-sm shadow-sky-200/70 flex items-center justify-center text-wabang-500 mb-3"><i class="ph-duotone ph-buildings text-4xl"></i></div><span class="text-xs font-extrabold text-wabang-600 bg-white/80 px-3 py-1 rounded-full mb-1">와방 매물</span><p class="text-[11px] font-medium text-slate-500">${esc(type||"")} · 사진 준비중</p></div>`}
+function fallback(type){return `<div class="w-full h-full bg-gradient-to-br from-wabang-50 via-wabang-100/70 to-sky-100 flex flex-col items-center justify-center p-6 text-center select-none"><div class="w-16 h-16 rounded-3xl bg-white shadow-sm shadow-sky-200/70 flex items-center justify-center text-wabang-500 mb-3"><i class="ph-duotone ph-buildings text-4xl"></i></div><span class="text-xs font-extrabold text-wabang-600 bg-white/80 px-3 py-1 rounded-full mb-1">하우지 매물</span><p class="text-[11px] font-medium text-slate-500">${esc(type||"")} · 사진 준비중</p></div>`}
 window.FB=fallback;
-/* 사진 로딩 실패 시: 1) 다른 구글 이미지 주소로 한 번 더 시도 → 2) 그래도 안 되면 '사진 준비중' 카드 */
-function imgErr(img,type){
-  const m=img.src.match(/drive\.google\.com\/thumbnail\?id=([\w-]+)/);
-  if(m&&!img.dataset.retry){img.dataset.retry="1";img.src="https://lh3.googleusercontent.com/d/"+m[1]+"=w1000";return}
-  img.onerror=null;img.parentElement.innerHTML=FB(type);
-}
 const PET_STYLE={"가능":"bg-emerald-100 text-emerald-800","협의":"bg-amber-100 text-amber-800","불가":"bg-slate-200 text-slate-700"};
 const petBadge=(x,big)=>x.pet?`<span class="${big?'px-3 py-1.5 text-sm':'px-2.5 py-0.5 text-[11px]'} rounded-lg font-extrabold ${PET_STYLE[x.pet]}">🐾 반려동물 ${x.pet}</span>`:"";
 const dealBadges=x=>x.offers.map(o=>`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-wabang-100 text-wabang-600">${esc(o.deal)}</span>`).join("");
@@ -290,7 +289,7 @@ const priceLines=(x,cls)=>x.offers.map(o=>`<div class="${cls}">${esc(priceText(o
 function card(x,i){
   const n=x.photos.length; let media;
   if(n){
-    const slides=x.photos.map((p,k)=>`<div class="carousel-slide relative w-full aspect-[4/3] bg-wabang-50 overflow-hidden cursor-pointer" data-open="${i}"><img src="${esc(p)}" alt="${esc(x.area)} 매물 사진 ${k+1}" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="imgErr(this,'${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("");
+    const slides=x.photos.map((p,k)=>`<div class="carousel-slide relative w-full aspect-[4/3] bg-wabang-50 overflow-hidden cursor-pointer" data-open="${i}"><img src="${esc(p)}" alt="${esc(x.area)} 매물 사진 ${k+1}" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="this.onerror=null;this.parentElement.innerHTML=FB('${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("");
     const multi=n>1;
     media=`<div class="relative group"><div class="carousel-track no-scrollbar">${slides}</div>
       ${multi?`<div class="pg absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-900/60 text-white text-[11px] font-bold tracking-wider z-10 pointer-events-none">1/${n}</div>
@@ -349,7 +348,7 @@ function openModal(x){
   const n=x.photos.length;
   if(n){
     const arrow=(cls,side,ic,label)=>`<button type="button" id="${cls}" class="absolute ${side} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-slate-800 flex items-center justify-center shadow-md z-10" aria-label="${label}"><i class="ph-bold ${ic} text-base"></i></button>`;
-    $("mMedia").innerHTML=`<div id="mTrack" class="carousel-track no-scrollbar w-full h-full">${x.photos.map((p,k)=>`<div class="carousel-slide w-full h-full bg-slate-900"><img src="${esc(p)}" alt="확대 사진 ${k+1}" referrerpolicy="no-referrer" onerror="imgErr(this,'${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("")}</div>`
+    $("mMedia").innerHTML=`<div id="mTrack" class="carousel-track no-scrollbar w-full h-full">${x.photos.map((p,k)=>`<div class="carousel-slide w-full h-full bg-slate-900"><img src="${esc(p)}" alt="확대 사진 ${k+1}" referrerpolicy="no-referrer" onerror="this.onerror=null;this.parentElement.innerHTML=FB('${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("")}</div>`
       +(n>1?`<div id="mPg" class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-bold z-10">1/${n}</div>
         ${arrow("mPrev","left-2.5","ph-caret-left","이전 사진")}${arrow("mNext","right-2.5","ph-caret-right","다음 사진")}
         <div id="mDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/30 z-10 pointer-events-none">${x.photos.map((_,k)=>`<span class="h-1.5 rounded-full transition-all ${k?'w-1.5 bg-white/50':'w-3 bg-white'}"></span>`).join("")}</div>`:"");
@@ -386,7 +385,7 @@ function drawPet(){
 }
 $("petToggle").onclick=()=>{F.pet=!F.pet;drawPet();render()};
 function drawProp(){
-  $("propBox").innerHTML=TYPES.map(t=>`<button type="button" data-p="${t}" class="px-3.5 py-1.5 rounded-full text-xs transition-all ${(t==="전체"?!F.types.size:F.types.has(t))?'bg-wabang-600 text-white font-bold shadow-sm shadow-sky-200':'bg-slate-100 text-slate-600 font-semibold hover:bg-wabang-50'}">${t}</button>`).join("");
+  $("propBox").innerHTML=TYPES.map(t=>`<button type="button" data-p="${t}" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${(t==="전체"?!F.types.size:F.types.has(t))?'bg-wabang-600 text-white font-bold shadow-sm shadow-sky-200':'bg-slate-100 text-slate-600 font-semibold hover:bg-wabang-50'}">${t}</button>`).join("");
   $("propBox").querySelectorAll("button").forEach(b=>b.onclick=()=>{const t=b.dataset.p;if(t==="전체")F.types.clear();else F.types.has(t)?F.types.delete(t):F.types.add(t);drawProp();render()});
 }
 function drawQuick(){
