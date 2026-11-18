@@ -4,8 +4,7 @@
  * 손님이 매물 사이트에서 '오픈카톡으로 보내기'를 누르면 (손님 전화번호는 받지 않음)
  *   1) 손님 화면이 만든 문의번호(예: K7M3A)로 시트 '문의접수' 탭에 기록
  *      → 손님이 오픈카톡에 붙여넣는 글 첫 줄에도 같은 번호가 있어서, 오픈카톡 대화와 시트·상세 페이지가 연결됨
- *   2) 중개사 카카오톡 '나와의 채팅'으로 한눈에 보이는 요약 메시지 발송 (카카오 연결 시)
- *   3) 메시지의 [문의 전체 보기] 버튼 → 중개사 전용 문의 상세 페이지
+ *   2) 시트의 '상세페이지' 링크 → 중개사 전용 문의 상세 페이지
  *      (매물 사진·조건 비교·비공개 정보·오픈카톡 답장 문구·처리상태 변경·메모)
  *
  * ───────── 설치 순서 ─────────
@@ -16,23 +15,11 @@
  * [4] '웹 앱 URL'(…/exec)을 매물 사이트 index.html 의 CONFIG.INQUIRY_URL 에 붙여넣기
  *     → 여기까지 하면 문의 접수 + 시트 기록 + 상세 페이지(시트의 '상세페이지' 링크)가 작동
  *
- * [5] (마지막) 카카오톡 알림 연결
- *   a. https://developers.kakao.com → 내 애플리케이션 → 애플리케이션 추가
- *   b. 앱 키의 'REST API 키' → 아래 KAKAO_REST_API_KEY 에 붙여넣기
- *   c. 카카오 로그인 활성화 ON / Redirect URI 에 웹 앱 URL 그대로 등록
- *   d. 동의항목 → '카카오톡 메시지 전송(talk_message)' 선택 동의
- *   e. 플랫폼(제품 링크 관리) → Web 사이트 도메인에 https://skylee-lang.github.io 등록
- *   f. (Client Secret '사용함'이면 코드 값을 KAKAO_CLIENT_SECRET 에)
- *   g. 코드 저장 → 배포 관리 → 수정(연필) → 버전: 새 버전 → 배포
- *   h. 브라우저에서  웹앱URL?setup=1  → 카카오톡 연결하기 → 테스트 메시지 오면 끝
- *
  * ※ 시트의 '관리용' 탭(직접 만드세요)에 [매물번호, 상세주소, 임대인 연락처, 비밀번호 …] 처럼 적어두면
  *   중개사 상세 페이지에만 표시됩니다. (손님에게 공개되는 매물 탭에는 절대 적지 마세요)
  * ※ 코드를 고친 뒤에는 '배포 관리 → 수정 → 새 버전 → 배포' 해야 반영됩니다. (주소 유지)
  */
 
-const KAKAO_REST_API_KEY  = "";            // 카카오 연결할 때 입력
-const KAKAO_CLIENT_SECRET = "";
 const SITE_URL            = "https://skylee-lang.github.io/wa-bang/";
 const ADMIN_PAGE_URL      = SITE_URL + "admin/";
 const LISTING_SHEET_GID   = 2111395519;    // 손님에게 공개되는 매물 탭 (CSV 주소의 gid= 값)
@@ -41,7 +28,7 @@ const SHEET_NAME          = "문의접수";
 const LIMIT_10MIN         = 30;            // 10분에 이보다 많이 들어오면 잠시 접수 중단 (장난·스팸 방지)
 const LIMIT_DAY           = 200;           // 하루 최대 접수 건수
 const STATUSES            = ["신규", "연락함", "투어예약", "계약", "보류", "종료"];
-const HEAD = ["문의번호", "접수시간", "접수경로", "오픈카톡 확인", "입주 시기", "매물번호", "고른 매물", "방 볼 수 있는 날", "희망 조건", "처리상태", "카톡알림", "상세페이지", "메모", "열쇠", "데이터"];
+const HEAD = ["문의번호", "접수시간", "접수경로", "오픈카톡 확인", "입주 시기", "매물번호", "고른 매물", "방 볼 수 있는 날", "희망 조건", "처리상태", "상세페이지", "메모", "열쇠", "데이터"];
 const C = Object.fromEntries(HEAD.map((h, i) => [h, i + 1]));   // 열 번호
 
 const PROPS = PropertiesService.getScriptProperties();
@@ -88,19 +75,13 @@ function doPost(e) {
       items.map(x => x.id).join(", "),
       items.map(x => `#${x.id} ${x.short || x.area}`).join("\n"),
       clean(c.viewingDate), clean(condText_(c)),
-      "신규", "", link, "", key,
+      "신규", link, "", key,
       JSON.stringify({ via: d.via || "", items, chat: c, message })
     ]);
     const row = sh.getLastRow();
     sh.getRange(row, C["오픈카톡 확인"]).insertCheckboxes();
     PROPS.setProperty("LAST_ID", String(Number(PROPS.getProperty("LAST_ID") || 0) + 1));   // 누적 건수
 
-    let kakao = "미연결";
-    if (PROPS.getProperty("KAKAO_REFRESH")) {
-      try { sendKakaoLong_(agentMsg_(code, d), link); kakao = "발송"; }
-      catch (err) { kakao = "실패: " + String(err.message).slice(0, 200); }
-    }
-    sh.getRange(row, C["카톡알림"]).setValue(kakao);
     return json_({ ok: true, id: code });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
@@ -114,23 +95,7 @@ function newCode_() {
   return c;
 }
 
-/* 중개사 카톡용 한눈에 보는 메시지 (200자 안쪽 목표) */
-function agentMsg_(id, d) {
-  const c = d.chat || {}, items = d.items || [], N = "①②③④⑤⑥⑦⑧⑨⑩";
-  const L = [`🏠 새 문의 ${id}${isUrgent_(c) ? " 🔥입주 급함" : ""} · ${d.via || "오픈카톡"}`];
-  const when = [c.moveInDate && (/입주/.test(c.moveInDate) ? c.moveInDate : "입주 " + c.moveInDate), c.viewingDate && "방 보기 " + c.viewingDate].filter(Boolean).join(" · ");
-  if (when) L.push("📅 " + when);
-  if (items.length) { L.push(`❤️ 고른 매물 ${items.length}개`); items.forEach((x, i) => L.push(`${N[i] || i + 1 + "."} #${x.id} ${x.short || x.area}`)); }
-  else L.push("❤️ 고른 매물 없음 (조건만 접수)");
-  // 짧은 조건: "투룸 · 1,000/50~80만 · 주차 · 🐾강아지 1마리"
-  const mr = String(c.monthlyRent || "");
-  const price = /전세|매매/.test(mr) ? mr : [c.deposit, mr].filter(Boolean).map(s => s.replace(/만원|이하|\s/g, "")).join("/") + (c.deposit || mr ? "만" : "");
-  const cond = [c.structure, price, c.parking && !/불필요/.test(c.parking) ? "주차" : "", c.pet && !/없/.test(c.pet) ? "🐾" + c.pet : ""].filter(Boolean).join(" · ");
-  if (cond) L.push("💬 " + cond);
-  if (c.location && L.join("\n").length + c.location.length < 185) L.push("📍 " + c.location);   // 자리 남으면 위치까지
-  return L.join("\n");
-}
-/* 입주가 한 달 안이면 '급함' → 카톡·시트·상세 페이지에 🔥 표시 (먼저 연락할 손님) */
+/* 입주가 한 달 안이면 '급함' → 시트·상세 페이지에 🔥 표시 (먼저 연락할 손님) */
 function isUrgent_(c) { return /즉시|1개월|이번\s*달|급/.test(String((c || {}).moveInDate || "")); }
 function condText_(c) {
   return [c.structure,
@@ -151,31 +116,8 @@ function doGet(e) {
   if (p.api === "inquiry") return json_(apiInquiry_(p));
   if (p.api === "update") return json_(apiUpdate_(p));
 
-  const self = ScriptApp.getService().getUrl();
-  if (p.code) {                                   // 카카오 로그인 후 돌아옴
-    try {
-      saveToken_(kakaoToken_({ grant_type: "authorization_code", redirect_uri: self, code: p.code }));
-      sendKakao_("✅ 와방 문의 알림이 연결됐어요!\n이제 새 문의가 오면 여기로 알려드려요.", SITE_URL);
-      return html_("✅ 연결 완료!", "카카오톡 '나와의 채팅'에 테스트 메시지가 왔는지 확인해 주세요.");
-    } catch (err) {
-      return html_("❌ 연결 실패", "원인: " + err.message + "<br><br>Redirect URI 에 아래 주소가 정확히 등록돼 있는지 확인해 주세요.<br><code>" + self + "</code>");
-    }
-  }
-  if (p.setup) {
-    if (!KAKAO_REST_API_KEY) return html_("REST API 키가 없어요", "코드 맨 위 KAKAO_REST_API_KEY 를 입력하고 새 버전으로 배포해 주세요.");
-    const url = "https://kauth.kakao.com/oauth/authorize?response_type=code&scope=talk_message&client_id=" +
-      encodeURIComponent(KAKAO_REST_API_KEY) + "&redirect_uri=" + encodeURIComponent(self);
-    return html_("카카오톡 알림 연결",
-      `<a href="${url}" target="_top" style="display:block;margin-top:16px;padding:16px;border-radius:14px;background:#FEE500;color:#191919;font-weight:800;text-decoration:none;text-align:center">카카오톡 연결하기</a>
-       <p style="margin-top:14px;color:#64748b;font-size:13px">문의를 받을 <b>중개사 본인 카카오 계정</b>으로 로그인해 주세요.</p>`);
-  }
-  if (p.test) {
-    try { sendKakao_("🔔 와방 테스트 알림입니다.", SITE_URL); return html_("테스트 발송 완료", "카톡을 확인해 주세요."); }
-    catch (err) { return html_("테스트 실패", err.message); }
-  }
   return html_("와방 문의 접수 서버 작동 중",
-    "카카오톡 연결: " + (PROPS.getProperty("KAKAO_REFRESH") ? "✅ 연결됨" : "❌ 미연결 (마지막 단계에서 주소 뒤에 ?setup=1)") +
-    "<br>접수된 문의(누적): " + (PROPS.getProperty("LAST_ID") || 0) + "건");
+    "접수된 문의(누적): " + (PROPS.getProperty("LAST_ID") || 0) + "건");
 }
 
 /* 문의 상세 (중개사 페이지용) */
@@ -238,55 +180,9 @@ function findListings_(ids) {
 /* ===================== 처음 한 번 실행 ===================== */
 function 설치하기() {
   getSheet_();
-  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === "토큰갱신").forEach(t => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger("토큰갱신").timeBased().everyDays(1).atHour(4).create();
-  UrlFetchApp.getRequest("https://kauth.kakao.com");
   const pub = SpreadsheetApp.getActiveSpreadsheet().getSheets().find(s => s.getSheetId() === LISTING_SHEET_GID);
   Logger.log(pub ? "매물 탭 확인: " + pub.getName() : "⚠️ 매물 탭(gid " + LISTING_SHEET_GID + ")을 못 찾았어요. LISTING_SHEET_GID 를 확인하세요.");
   Logger.log("설치 완료! 이제 웹 앱으로 배포하세요.");
-}
-function 토큰갱신() { if (PROPS.getProperty("KAKAO_REFRESH")) accessToken_(true); }
-
-/* ===================== 카카오 API ===================== */
-function kakaoToken_(params) {
-  const payload = Object.assign({ client_id: KAKAO_REST_API_KEY }, params);
-  if (KAKAO_CLIENT_SECRET) payload.client_secret = KAKAO_CLIENT_SECRET;
-  const res = UrlFetchApp.fetch("https://kauth.kakao.com/oauth/token", { method: "post", payload, muteHttpExceptions: true });
-  const t = JSON.parse(res.getContentText());
-  if (!t.access_token) throw new Error("토큰 발급 실패 " + res.getContentText());
-  return t;
-}
-function saveToken_(t) {
-  PROPS.setProperty("KAKAO_ACCESS", t.access_token);
-  PROPS.setProperty("KAKAO_EXPIRES", String(Date.now() + (t.expires_in - 300) * 1000));
-  if (t.refresh_token) PROPS.setProperty("KAKAO_REFRESH", t.refresh_token);
-}
-function accessToken_(force) {
-  const refresh = PROPS.getProperty("KAKAO_REFRESH");
-  if (!refresh) throw new Error("카카오톡 미연결");
-  if (!force && Date.now() < Number(PROPS.getProperty("KAKAO_EXPIRES") || 0)) return PROPS.getProperty("KAKAO_ACCESS");
-  saveToken_(kakaoToken_({ grant_type: "refresh_token", refresh_token: refresh }));
-  return PROPS.getProperty("KAKAO_ACCESS");
-}
-function sendKakao_(text, link) {
-  const tpl = { object_type: "text", text: text.slice(0, 200), link: { web_url: link, mobile_web_url: link }, button_title: "문의 전체 보기" };
-  const res = UrlFetchApp.fetch("https://kapi.kakao.com/v2/api/talk/memo/default/send", {
-    method: "post", headers: { Authorization: "Bearer " + accessToken_() },
-    payload: { template_object: JSON.stringify(tpl) }, muteHttpExceptions: true
-  });
-  if (res.getResponseCode() !== 200) throw new Error(res.getContentText());
-}
-/* 카톡 텍스트는 200자 제한 → 넘치면 줄 단위로 나눠 여러 개로 */
-function sendKakaoLong_(text, link) {
-  const parts = [];
-  let cur = "";
-  text.split("\n").forEach(l => {
-    while (l.length > 190) { if (cur) { parts.push(cur); cur = ""; } parts.push(l.slice(0, 190)); l = l.slice(190); }
-    const next = cur ? cur + "\n" + l : l;
-    if (next.length > 190) { parts.push(cur); cur = l; } else cur = next;
-  });
-  if (cur.trim()) parts.push(cur);
-  parts.forEach((p, i) => { sendKakao_((parts.length > 1 ? `(${i + 1}/${parts.length}) ` : "") + p, link); if (i < parts.length - 1) Utilities.sleep(300); });
 }
 
 /* ===================== 도우미 ===================== */
@@ -313,5 +209,5 @@ function html_(title, body) {
   return HtmlService.createHtmlOutput(
     `<div style="font-family:-apple-system,sans-serif;max-width:420px;margin:40px auto;padding:0 20px">
      <h2 style="font-size:20px">${title}</h2><div style="font-size:15px;line-height:1.6;color:#334155">${body}</div></div>`
-  ).setTitle("와방 알림").addMetaTag("viewport", "width=device-width, initial-scale=1");
+  ).setTitle("와방 문의 접수").addMetaTag("viewport", "width=device-width, initial-scale=1");
 }
