@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- 검색 엔진 노출 차단 (링크 보유자 전용) -->
 <meta name="robots" content="noindex, nofollow">
-<title>하우지 | 공인중개사 이지우</title>
+<title>와방 | 공인중개사 이하늘</title>
 <!-- 링크 미리보기(카톡/문자/SNS): og.jpg 를 index.html 과 같은 폴더에 두고,
      아래 og:image 주소의 "여기에_내사이트주소" 를 실제 배포 주소(예: my-wabang.netlify.app)로 바꾸세요 -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="하우지">
-<meta property="og:title" content="하우지 | 공인중개사 이지우">
+<meta property="og:site_name" content="와방">
+<meta property="og:title" content="와방 | 공인중개사 이하늘">
 <meta property="og:description" content="매매 · 전세 · 월세 매물을 사진으로 한눈에 확인하세요">
 <meta property="og:image" content="https://skylee-lang.github.io/wa-bang/jeonpo1.jpg">
 <meta property="og:image:secure_url" content="https://skylee-lang.github.io/wa-bang/jeonpo1.jpg">
@@ -18,13 +18,12 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
+<link rel="icon" type="image/png" href="Favicon.png">
+<link rel="apple-touch-icon" href="Favicon.png">
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 <script>
-tailwind.config={theme:{extend:{fontFamily:{sans:['Pretendard','-apple-system','BlinkMacSystemFont','system-ui','Roboto','sans-serif']},
+tailwind.config={theme:{extend:{fontFamily:{sans:['-apple-system','BlinkMacSystemFont','Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','Noto Sans KR','Roboto','Helvetica Neue','Segoe UI','sans-serif']},
 colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38BDF8',500:'#0EA5E9',600:'#0284C7',dark:'#0F172A'}}}}}
 </script>
 <style>
@@ -40,6 +39,8 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
     .carousel-slide::after{content:"";position:absolute;inset:0;z-index:2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Cg transform='rotate(-24 130 85)' font-family='sans-serif' font-size='17' font-weight='700' text-anchor='middle'%3E%3Ctext x='131' y='86' fill='rgba(0,0,0,.22)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3Ctext x='130' y='85' fill='rgba(255,255,255,.55)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat}
   @media print{body{display:none!important}}
   button:focus-visible,input:focus-visible{outline:2px solid #0284C7;outline-offset:2px}
+  /* 기기 기본 한글 글꼴: 아이폰·맥(애플 SD 고딕) / 갤럭시(삼성 기본·Noto) / 윈도우(맑은 고딕) */
+  html,body,button,input,textarea,select{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕","Noto Sans KR",Roboto,"Helvetica Neue","Segoe UI",sans-serif}
 </style>
 </head>
 <body class="bg-wabang-50 text-slate-800 antialiased selection:bg-wabang-200 selection:text-wabang-dark">
@@ -47,10 +48,16 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
 /* ============ [사장님 설정 영역] 구글 시트 CSV 링크를 붙여넣으세요 ============ */
 const CONFIG = {
   CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbMZKKPwauBMpxxaghe0X3MrBg8q7fNpbQjRf0Se4QoSHUVupQNAgVJBL_8LLceWI3MoXF_1ClhGtY/pub?gid=2111395519&single=true&output=csv",              // 비워두면 샘플 매물 2개가 표시됩니다 (디자인 확인용)
-  PHONE: "010-4540-3232",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
+  PHONE: "010-4445-6432",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
   ACTIVE_WORD: "진행중",    // 상태가 이 값이면 표시. '거래완료', '삭제' 등은 숨김
   SHOW_BLANK_STATUS: true,  // true: 상태가 비어 있어도 표시
-  SHOW_DONE: true           // true: 거래완료 매물을 회색으로 표시 / false: 완전히 숨김
+  SHOW_DONE: true,          // true: 거래완료 매물을 회색으로 표시 / false: 완전히 숨김
+  /* ---- 손님 → 중개사 문의 보내기 ---- */
+  CHATBOT_URL: "https://skylee-lang.github.io/wa-bang/chat/",          // 조건 접수 챗봇 주소
+  KAKAO_OPENCHAT_URL: "https://open.kakao.com/o/sPQtqVTi",    // 오픈카톡 ('중개사에게 보내기'의 큰 버튼)
+  INSTAGRAM_DM_URL: "https://www.instagram.com/_u/bu_room/",  // 휴대폰: 인스타 앱 프로필
+  INSTAGRAM_WEB_URL: "https://www.instagram.com/bu_room/",    // 컴퓨터: 일반 프로필
+  INQUIRY_URL: ""   // 구글 Apps Script 웹앱 주소. 넣으면 오픈카톡으로 보낼 때 문의번호가 붙고 시트·카톡 알림에 자동 접수돼요 (손님 전화번호는 받지 않음)
 };
 /* ============================================================================ */
 </script>
@@ -58,23 +65,23 @@ const CONFIG = {
 <div class="max-w-md mx-auto min-h-screen bg-[#F5FAFF] shadow-xl shadow-sky-900/5 relative pb-20">
 
   <!-- 상단 배너: banner.jpg 를 index.html 과 같은 폴더에 두세요 (없으면 자동으로 숨겨집니다) -->
-  <img src="banner.jpg" alt="하우지 - 내가 찾는 집, 이제는 하우지에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto" onerror="this.remove()">
+  <img src="banner.jpg" alt="와방 - 내가 찾는 집, 이제는 와방에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto" onerror="this.remove()">
 
   <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-wabang-100 px-4 pt-3.5 pb-3" style="padding-top:max(.875rem,env(safe-area-inset-top))">
     <div class="flex items-center justify-between mb-3">
-      <a href="./" id="homeBtn" class="flex items-center gap-2" aria-label="하우지 홈으로 (필터 초기화)">
+      <a href="./" id="homeBtn" class="flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
         <div class="w-9 h-9 rounded-xl bg-wabang-600 flex items-center justify-center shadow-sm shadow-sky-200 shrink-0" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 3.2 2.8 11.1a1 1 0 0 0 .65 1.76H5V20a1 1 0 0 0 1 1h4.2v-5.6h3.6V21H18a1 1 0 0 0 1-1v-7.14h1.55a1 1 0 0 0 .65-1.76L12 3.2Z"/></svg>
         </div>
         <div class="flex items-center gap-1.5">
-          <h1 class="text-xl font-extrabold tracking-tight text-slate-900">하우지</h1>
-          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-wabang-100 text-wabang-600 whitespace-nowrap">공인중개사 이지우</span>
+          <h1 class="text-xl font-extrabold tracking-tight text-slate-900 whitespace-nowrap">와방</h1>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-wabang-100 text-wabang-600 whitespace-nowrap">공인중개사 이하늘</span>
         </div>
       </a>
       <div class="flex items-center gap-2">
-        <span id="countBadge" class="text-xs font-bold text-wabang-600 bg-wabang-50 border border-wabang-200 px-2.5 py-1 rounded-full">매물 0건</span>
+        <span id="countBadge" class="text-xs font-bold text-wabang-600 bg-wabang-50 border border-wabang-200 px-2.5 py-1 rounded-full whitespace-nowrap">매물 0건</span>
         <a id="callBtn" class="hidden p-1.5 rounded-full text-wabang-600 bg-wabang-50" aria-label="전화 문의"><i class="ph-fill ph-phone text-lg"></i></a>
-        <button id="resetTop" title="필터 초기화" aria-label="필터 초기화" class="p-1.5 rounded-full text-slate-400 hover:text-wabang-600 hover:bg-wabang-50"><i class="ph ph-arrows-clockwise text-lg"></i></button>
+        <button id="resetTop" title="처음부터 다시 (담은 매물·조건 초기화)" aria-label="처음부터 다시 (담은 매물·조건 초기화)" class="p-1.5 rounded-full text-slate-400 hover:text-wabang-600 hover:bg-wabang-50"><i class="ph ph-arrows-clockwise text-lg"></i></button>
       </div>
     </div>
     <div class="relative">
@@ -132,11 +139,16 @@ const CONFIG = {
     </div>
   </section>
 
+  <!-- 챗봇에서 넘어온 조건 안내 배너 -->
+  <div id="chatBanner" class="hidden mx-4 mt-4"></div>
+  <!-- 매물이 0~2개일 때: 조건을 조금 넓히면 몇 개 더 나오는지 제안 -->
+  <div id="relaxBox" class="hidden mx-4 mt-3"></div>
+
   <main id="list" class="px-4 py-4 space-y-5"></main>
 
   <div id="loading" class="py-16 text-center space-y-3">
     <div class="w-10 h-10 border-4 border-wabang-200 border-t-wabang-500 rounded-full animate-spin mx-auto"></div>
-    <p class="text-sm font-medium text-slate-500">하우지 매물 리스트를 불러오는 중...</p>
+    <p class="text-sm font-medium text-slate-500">와방 매물 리스트를 불러오는 중...</p>
   </div>
   <div id="empty" class="hidden px-6 py-20 text-center">
     <div class="w-16 h-16 rounded-3xl bg-wabang-100 text-wabang-500 flex items-center justify-center mx-auto mb-4"><i class="ph ph-magnifying-glass text-3xl"></i></div>
@@ -145,14 +157,14 @@ const CONFIG = {
     <button id="resetEmpty" class="px-5 py-2.5 rounded-2xl bg-wabang-600 text-white text-xs font-bold shadow-md shadow-sky-200 hover:bg-wabang-dark transition-all">모든 필터 초기화하기</button>
   </div>
   <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6">
-    <p class="font-bold text-slate-600 mb-1">하우지 · 공인중개사 이지우</p>
+    <p class="font-bold text-slate-600 mb-1">와방 · 공인중개사 이하늘</p>
     <p>본 페이지는 안내 링크를 전달받으신 고객님 전용 매물 카탈로그입니다.</p>
-    <p class="mt-2">삼한법무사공인중개사사무소</p>
-       <p>주소:부산진구 중앙대로821, 201동 B114호(범전동, 삼한골든뷰센트럴파크) </p>
-       <p>Tel: 010-4540-3332 공인중개사 이지우 </p>
-       <p>Tel: 051-711-8878</p>
-       <p>등록번호: 26230-2020-00043</p>
-       <p>소장: 신종한</p>
+    <p class="mt-2">잇다공인중개사무소</p>
+       <p>주소:부산광역시 부산진구 전포대로 229, 경원빌딩 4층</p>
+       <p>Tel: 010-4445-6432 공인중개사 이하늘</p>
+       <p>Tel: 051) 715-2220</p>
+       <p>등록번호: 제26230-2024-00093</p>
+       <p>소장: 정한나</p>
   </footer>
 </div>
 
@@ -179,10 +191,96 @@ const CONFIG = {
     </div>
     <div class="p-4 border-t border-slate-100 bg-white flex gap-2">
       <a id="mCall" class="hidden flex-1 text-center py-3 rounded-2xl bg-wabang-50 border border-wabang-200 text-wabang-600 text-sm font-bold">전화 문의</a>
+      <button id="mPick" type="button" class="hidden flex-[1.4] py-3 rounded-2xl text-sm font-bold transition-all"></button>
       <button id="mOk" class="flex-1 py-3 rounded-2xl bg-wabang-600 text-white text-sm font-bold shadow-md shadow-sky-200 hover:bg-wabang-dark transition-all">확인 완료</button>
     </div>
   </div>
 </div>
+
+<!-- 하단 고정: 담은 매물 → 중개사에게 보내기 -->
+<div id="pickBar" class="hidden fixed bottom-0 inset-x-0 z-40 pointer-events-none" style="padding-bottom:env(safe-area-inset-bottom)">
+  <div class="max-w-md mx-auto px-4 pb-3 pointer-events-auto">
+    <button id="pickBtn" type="button" class="w-full flex items-center justify-between gap-2 px-4 py-3.5 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/30 active:scale-[0.99] transition">
+      <span class="flex items-center gap-2 text-sm font-bold"><i class="ph-fill ph-heart text-rose-400 text-lg"></i><span id="pickCount">담은 매물 0개</span></span>
+      <span class="flex items-center gap-1 text-sm font-extrabold text-sky-300">중개사에게 보내기 <i class="ph-bold ph-paper-plane-right"></i></span>
+    </button>
+  </div>
+</div>
+
+<!-- 중개사에게 보내기 시트 -->
+<div id="sendModal" class="hidden fixed inset-0 z-[55] flex items-end sm:items-center justify-center bg-slate-900/60 p-0 sm:p-4" role="dialog" aria-modal="true" aria-label="중개사에게 보내기">
+  <div class="absolute inset-0" id="sBack"></div>
+  <div class="modal-animate relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col z-10">
+    <div id="sDone" class="hidden absolute inset-0 z-20 bg-white flex-col justify-center gap-4 p-6 overflow-y-auto"></div>
+    <!-- 복사 확인 → 그다음에 오픈카톡/인스타 열기 (복사와 앱 이동을 한 번에 하면 아이폰·PC에서 복사가 끊기는 경우가 있어 두 단계로 나눔) -->
+    <div id="sCopy" class="hidden absolute inset-0 z-30 bg-white flex-col gap-3 p-5 overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h4 id="sCopyTitle" class="text-base font-extrabold text-slate-900"></h4>
+        <button type="button" id="sCopyX" class="p-1.5 rounded-full bg-slate-100 text-slate-500" aria-label="뒤로"><i class="ph-bold ph-x text-base"></i></button>
+      </div>
+      <p id="sCopyDesc" class="text-xs text-slate-600 leading-relaxed break-keep"></p>
+      <textarea id="sCopyText" readonly class="w-full flex-1 min-h-[160px] p-3 rounded-xl bg-slate-50 border border-slate-200 text-[13px] text-slate-700 leading-relaxed resize-none"></textarea>
+      <button type="button" id="sCopyAgain" class="w-full py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center gap-1"><i class="ph-bold ph-copy"></i>다시 복사하기</button>
+      <a id="sCopyGo" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-md"></a>
+    </div>
+    <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+      <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-1.5"><i class="ph-fill ph-paper-plane-tilt text-wabang-600"></i> 중개사에게 보내기</h3>
+      <button id="sX" class="p-1.5 rounded-full bg-slate-100 text-slate-500" aria-label="닫기"><i class="ph-bold ph-x text-base"></i></button>
+    </div>
+    <div class="overflow-y-auto flex-1 p-5 space-y-4">
+      <div>
+        <div class="text-xs font-bold text-slate-500 mb-1.5">보고 싶은 매물</div>
+        <div id="sItems" class="space-y-2"></div>
+      </div>
+      <div id="sView"></div>
+      <div>
+        <div class="text-xs font-bold text-slate-500 mb-1.5">희망 조건</div>
+        <div id="sChat"></div>
+      </div>
+      <details class="rounded-2xl bg-slate-50 border border-slate-100">
+        <summary class="px-3.5 py-2.5 text-xs font-bold text-slate-500 cursor-pointer">보낼 내용 미리보기</summary>
+        <pre id="sPreview" class="px-3.5 pb-3 text-[11px] text-slate-700 whitespace-pre-wrap break-words font-sans leading-relaxed select-all"></pre>
+      </details>
+    </div>
+    <div class="p-4 border-t border-slate-100 bg-white space-y-2" style="padding-bottom:max(1rem,env(safe-area-inset-bottom))">
+      <!-- 큰 버튼은 오픈카톡 하나: 인스타 보고 처음 온 손님은 공유 창에 오픈카톡방이 없어서, 방을 바로 여는 오픈카톡이 가장 확실함 -->
+      <button type="button" id="sKakao" class="w-full py-3.5 rounded-2xl bg-[#FEE500] text-[#191919] text-sm font-extrabold flex items-center justify-center gap-2 shadow-md shadow-yellow-200"><i class="ph-fill ph-chat-teardrop-text text-lg"></i>오픈카톡으로 보내기</button>
+      <!-- 나머지 방법은 접어 둠 (버튼이 많으면 고르는 것부터 부담) -->
+      <button type="button" id="sMore" class="w-full py-1 text-[11px] font-bold text-slate-400 flex items-center justify-center gap-1">다른 방법으로 보내기 <i id="sMoreIco" class="ph-bold ph-caret-down"></i></button>
+      <div id="sRow" class="hidden grid-cols-2 gap-2">
+        <!-- 휴대폰: 공유하기 (이미 대화한 적 있는 채팅방·인스타 DM으로 보낼 때 편함) -->
+        <button type="button" id="sShare" class="hidden py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold items-center justify-center gap-1"><i class="ph-bold ph-share-network"></i>공유하기</button>
+        <a id="sSms" class="py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-bold flex items-center justify-center gap-1"><i class="ph-bold ph-chat-circle-dots"></i>문자로</a>
+        <button type="button" id="sInsta" class="py-2.5 rounded-xl bg-wabang-50 border border-wabang-200 text-wabang-600 text-xs font-bold flex items-center justify-center gap-1"><i class="ph-bold ph-instagram-logo"></i>인스타 DM으로</button>
+      </div>
+      <p id="sHint" class="text-[11px] text-slate-400 text-center leading-snug break-keep"></p>
+    </div>
+  </div>
+</div>
+
+<!-- 와방 도우미: 하단 버튼 + 첫 방문 말풍선 -->
+<div id="helperWrap" class="fixed z-40 inset-x-0 pointer-events-none transition-all duration-200" style="bottom:calc(env(safe-area-inset-bottom) + 16px)">
+  <div class="max-w-md mx-auto px-4 flex flex-col items-end gap-2">
+    <div id="helperBubble" class="hidden pointer-events-auto relative max-w-[250px] pl-3.5 pr-7 py-2.5 rounded-2xl rounded-br-md bg-white border border-wabang-200 shadow-lg text-xs text-slate-700 leading-snug break-keep">
+      <button type="button" id="bubbleX" class="absolute top-1.5 right-1.5 p-1 text-slate-400" aria-label="닫기"><i class="ph-bold ph-x text-[11px]"></i></button>
+      <b class="text-slate-900">어떤 집 찾으세요?</b><br>질문 몇 개에 답하면 <b class="text-wabang-600">맞는 매물만</b> 바로 골라드려요 🐾
+    </div>
+    <button type="button" id="helperBtn" class="pointer-events-auto flex items-center gap-1.5 pl-3.5 pr-4 py-3 rounded-full bg-wabang-600 text-white text-sm font-extrabold shadow-xl shadow-sky-900/25 active:scale-95 transition">
+      <i class="ph-fill ph-paw-print text-lg"></i><span id="helperLabel">와방 도우미</span>
+    </button>
+  </div>
+</div>
+
+<!-- 와방 도우미 바텀시트 (챗봇) -->
+<div id="helperSheet" class="hidden fixed inset-0 z-[52] items-end justify-center bg-slate-900/40" role="dialog" aria-modal="true" aria-label="와방 도우미">
+  <div class="absolute inset-0" id="helperBack"></div>
+  <div class="modal-animate relative w-full max-w-md bg-white rounded-t-3xl overflow-hidden shadow-2xl" style="height:88vh;height:88dvh">
+    <div class="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300 z-10 pointer-events-none"></div>
+    <iframe id="helperFrame" title="와방 도우미" allow="clipboard-write" class="w-full h-full border-0 block"></iframe>
+  </div>
+</div>
+
+<div id="toast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[70] px-4 py-2.5 rounded-2xl bg-slate-900/95 text-white text-xs font-bold shadow-lg w-max max-w-[90%] text-center leading-snug"></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -191,6 +289,10 @@ const inPhoto=e=>e.target.closest&&e.target.closest(".carousel-track,#mMedia,[da
 document.addEventListener("contextmenu",e=>{if(inPhoto(e))e.preventDefault()});
 document.addEventListener("dragstart",e=>{if(inPhoto(e))e.preventDefault()});
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* 자동 접수 설정 (아래 '자동 접수' 설명 참고) — 화면 그리기 전에 준비돼 있어야 해서 맨 위에 둠 */
+const AUTO=!!CONFIG.INQUIRY_URL;
+const CODE_CH="ACDEFHJKMNPRTUVWXY34679";   // 헷갈리는 글자(0·O, 1·I·L, 2·Z, 5·S, 8·B) 제외
+let INQ={sig:"",code:"",sent:false};
 const num=v=>{const n=parseInt(String(v??"").replace(/[^0-9]/g,""),10);return isNaN(n)?0:n};
 /* 금액 칸: 만원 단위, 소수점 허용 (예: 45678.9 = 456,789,000원) */
 const money=v=>{const n=parseFloat(String(v??"").replace(/,/g,"").replace(/[^0-9.]/g,""));return isNaN(n)?0:n};
@@ -218,14 +320,20 @@ function driveThumb(u){u=u.trim();const m=u.match(/[?&]id=([\w-]+)/)||u.match(/\
 const TYPE_WORDS=["아파트","오피스텔","원룸","투룸","쓰리룸","상가"];
 
 const DBG={st:0,off:0,statuses:[],headers:""};
+/* 구글폼 타임스탬프 → 숫자 (예: "2026. 11. 18 오후 10:38:12", "2026-11-18 22:38", "11/18/2026 22:38:12") */
+function regTime(v){const n=(v||"").match(/\d+/g);if(!n||n.length<3)return 0;
+  let y,mo,d;if(n[0].length===4)[y,mo,d]=[+n[0],+n[1],+n[2]];else if(n[2].length===4)[mo,d,y]=[+n[0],+n[1],+n[2]];else return 0;
+  let hh=+(n[3]||0);if(/오후|PM/i.test(v)&&hh<12)hh+=12;if(/오전|AM/i.test(v)&&hh===12)hh=0;
+  const t=new Date(y,mo-1,d,hh,+(n[4]||0),+(n[5]||0)).getTime();return isNaN(t)?0:t}
 function toItems(rows){
   DBG.headers=rows[0].map(x=>x.trim()).join(" | ");
   const h=rows[0], ix={status:col(h,["상태"]),deal:col(h,["거래유형"]),type:col(h,["매물종류"]),area:col(h,["지역"]),
     dep:col(h,["보증금"]),rent:col(h,["월세"]),jeon:col(h,["전세금"]),sale:col(h,["매매가"]),fee:col(h,["관리비"]),
     exc:col(h,["전용면적","전용평수","전용"]),sup:col(h,["공급면적","공급평수","공급"]),floor:col(h,["층수","층"]),
-    dir:col(h,["방향"]),pet:col(h,["반려동물","반려동물여부","펫"]),memo:col(h,["한줄특징","특징","메모"]),photo:col(h,["사진"])};
+    dir:col(h,["방향"]),pet:col(h,["반려동물","반려동물여부","펫"]),memo:col(h,["한줄특징","특징","메모"]),photo:col(h,["사진"]),
+    id:col(h,["매물번호","번호","ID","id"]),reg:col(h,["타임스탬프","Timestamp","등록일시","등록일","등록 날짜"])};
   const get=(r,i)=>i>=0?(r[i]||"").trim():"", out=[];
-  for(const r of rows.slice(1)){
+  for(let ri=1;ri<rows.length;ri++){const r=rows[ri];
     const st=get(r,ix.status), stKey=st.replace(/\s/g,"");
     DBG.statuses.push(st||"(빈칸)");
     const isDone=stKey.includes("완료");
@@ -238,11 +346,12 @@ function toItems(rows){
     if(!offers.length){DBG.off++;continue}
     const tt=get(r,ix.type); let types=TYPE_WORDS.filter(w=>tt.includes(w)); if(!types.length&&tt)types=[tt];
     const pv=get(r,ix.pet), pet=["불가","협의","가능"].find(w=>pv.includes(w))||"";
-    out.push({done:isDone,types,type:types.join(", "),pet,area:get(r,ix.area),fee:get(r,ix.fee),memo:get(r,ix.memo),offers,
+    out.push({id:get(r,ix.id)||String(ri+1),done:isDone,row:ri,reg:regTime(get(r,ix.reg)),types,type:types.join(", "),pet,area:get(r,ix.area),fee:get(r,ix.fee),memo:get(r,ix.memo),offers,
       exc:get(r,ix.exc),sup:get(r,ix.sup),floor:get(r,ix.floor),dir:get(r,ix.dir),
       photos:get(r,ix.photo).split(",").map(x=>x.trim()).filter(Boolean).map(driveThumb)});
   }
-  out.sort((a,b)=>(a.done?1:0)-(b.done?1:0));   // 진행중 먼저, 거래완료는 아래로
+  // 진행중 먼저(거래완료는 아래로) → 최근 등록한 매물이 맨 위 (등록 시간, 없으면 시트 아래쪽 줄이 최신)
+  out.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||((b.reg||0)-(a.reg||0))||(b.row-a.row));
   return out;
 }
 
@@ -274,12 +383,12 @@ function offerOk(o){
 function filtered(){const kw=F.kw.trim().toLowerCase();
   return all.filter(x=>{
     if(F.types.size&&!x.types.some(t=>F.types.has(t)))return false;
-    if(F.pet&&x.pet!=="가능")return false;
+    if(F.pet&&!(x.pet==="가능"||(F.petLoose&&x.pet==="협의")))return false;
     if(kw&&!(x.area+" "+x.memo+" "+x.type+" "+x.dir+" "+x.offers.map(o=>o.deal).join(" ")).toLowerCase().includes(kw))return false;
     return x.offers.some(offerOk)})}
 
 /* ---------- 카드 ---------- */
-function fallback(type){return `<div class="w-full h-full bg-gradient-to-br from-wabang-50 via-wabang-100/70 to-sky-100 flex flex-col items-center justify-center p-6 text-center select-none"><div class="w-16 h-16 rounded-3xl bg-white shadow-sm shadow-sky-200/70 flex items-center justify-center text-wabang-500 mb-3"><i class="ph-duotone ph-buildings text-4xl"></i></div><span class="text-xs font-extrabold text-wabang-600 bg-white/80 px-3 py-1 rounded-full mb-1">하우지 매물</span><p class="text-[11px] font-medium text-slate-500">${esc(type||"")} · 사진 준비중</p></div>`}
+function fallback(type){return `<div class="w-full h-full bg-gradient-to-br from-wabang-50 via-wabang-100/70 to-sky-100 flex flex-col items-center justify-center p-6 text-center select-none"><div class="w-16 h-16 rounded-3xl bg-white shadow-sm shadow-sky-200/70 flex items-center justify-center text-wabang-500 mb-3"><i class="ph-duotone ph-buildings text-4xl"></i></div><span class="text-xs font-extrabold text-wabang-600 bg-white/80 px-3 py-1 rounded-full mb-1">와방 매물</span><p class="text-[11px] font-medium text-slate-500">${esc(type||"")} · 사진 준비중</p></div>`}
 window.FB=fallback;
 const PET_STYLE={"가능":"bg-emerald-100 text-emerald-800","협의":"bg-amber-100 text-amber-800","불가":"bg-slate-200 text-slate-700"};
 const petBadge=(x,big)=>x.pet?`<span class="${big?'px-3 py-1.5 text-sm':'px-2.5 py-0.5 text-[11px]'} rounded-lg font-extrabold ${PET_STYLE[x.pet]}">🐾 반려동물 ${x.pet}</span>`:"";
@@ -308,24 +417,95 @@ function card(x,i){
       <div class="flex items-end justify-between gap-2 mb-2.5">
         <div>${priceLines(x,d?"text-xl font-extrabold text-slate-400 line-through tracking-tight leading-tight":"text-xl font-extrabold text-slate-900 tracking-tight leading-tight")}
           ${x.fee?`<div class="text-xs font-semibold text-wabang-600 mt-0.5">관리비 ${esc(feeText(x.fee))}</div>`:""}</div>
-        <button type="button" data-open="${i}" class="shrink-0 flex items-center gap-1 px-3 py-2 rounded-2xl bg-wabang-50 hover:bg-wabang-100 border border-wabang-200 text-wabang-600 text-xs font-extrabold transition-colors"><i class="ph-bold ph-plus text-sm"></i> 상세정보</button>
+        <div class="shrink-0 flex flex-col items-stretch gap-1.5">
+          ${d?"":pickBtnHtml(x)}
+          <button type="button" data-open="${i}" class="flex items-center justify-center gap-1 px-3 py-2 rounded-2xl bg-wabang-50 hover:bg-wabang-100 border border-wabang-200 text-wabang-600 text-xs font-extrabold transition-colors"><i class="ph-bold ph-plus text-sm"></i> 상세정보</button>
+        </div>
       </div>
+      ${x.hit&&x.hit.length?`<div class="mb-2 flex flex-wrap items-center gap-1"><span class="px-2 py-0.5 rounded-lg text-[11px] font-extrabold bg-emerald-100 text-emerald-800">✓ 희망 조건 일치</span>${x.hit.map(t=>`<span class="text-[11px] font-bold text-emerald-700">#${esc(t)}</span>`).join("")}</div>`:""}
       <p data-open="${i}" class="text-xs text-slate-500 line-clamp-2 leading-relaxed cursor-pointer">${esc(x.memo)||"평수·층수·방향은 상세정보 버튼을 눌러 확인하세요."}</p>
     </div></article>`;
 }
 
 function render(){
   shown=filtered();
+  shown.forEach(x=>x.hit=CHAT_ON?scoreItem(x):[]);
+  if(CHAT_ON)shown.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||(b.hit.length-a.hit.length));  // 조건이 많이 맞는 매물 먼저
   $("list").innerHTML=shown.map(card).join("");
   {const act=shown.filter(x=>!x.done).length,dn=shown.length-act;$("countBadge").textContent=`매물 ${act}건`+(dn?` · 완료 ${dn}`:"")}
   $("empty").classList.toggle("hidden",!!shown.length);
   if(!shown.length){const none=!all.length;$("emptyTitle").textContent=none?"등록된 매물이 없습니다":"조건에 맞는 매물이 없습니다";
-    $("emptyDesc").textContent=none?"잠시 후 다시 확인해 주세요.":"금액 범위나 선택하신 거래 유형을 조금 넓혀서 다시 검색해 보세요.";$("resetEmpty").classList.toggle("hidden",none)}
+    $("emptyDesc").textContent=none?"잠시 후 다시 확인해 주세요.":"금액 범위나 선택하신 거래 유형을 조금 넓혀서 다시 검색해 보세요.";$("resetEmpty").classList.toggle("hidden",none);
+    if(CHAT_ON&&!none){$("emptyTitle").textContent="알려주신 조건에 딱 맞는 매물이 아직 없어요";
+      $("emptyDesc").innerHTML="위의 💡 제안으로 조건을 조금 넓혀 보시거나, 조건만 먼저 보내주시면 맞는 매물이 나오는 대로 연락드릴게요.<br><button type='button' onclick='openSend()' class='mt-3 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold'>조건만 중개사에게 보내기</button>";
+      $("resetEmpty").textContent="조건 넓혀서 전체 매물 보기"}
+    else $("resetEmpty").textContent="모든 필터 초기화하기"}
   document.querySelectorAll("#list article").forEach(bindCard);
-  summary();
+  summary();drawBanner();drawPickBar();drawRelax();
+}
+
+/* ---------- 0~2개일 때 완화 제안: "보증금 1,500만까지 → 3개 더" ---------- */
+const activeCount=()=>filtered().filter(x=>!x.done).length;
+function tryWith(mod){
+  const save={deals:new Set(F.deals),types:new Set(F.types),pet:F.pet,petLoose:F.petLoose,kw:F.kw,depMin:F.depMin,depMax:F.depMax,rentMin:F.rentMin,rentMax:F.rentMax};
+  mod();const n=activeCount();Object.assign(F,save);return n;
+}
+function relaxOptions(base){
+  const out=[], live=all.filter(x=>!x.done), w=v=>{const t=won(v);return /억$/.test(t)?t:t+"만"};
+  const firstGain=(vals,set,label)=>{for(const v of vals.slice(0,40)){const n=tryWith(()=>set(v));if(n>base){out.push({label:label(v),n:n-base,apply:()=>set(v)});return}}};
+  if(F.depMax!=null)firstGain([...new Set(live.flatMap(x=>x.offers.map(o=>o.dep)).filter(v=>v>F.depMax))].sort((a,b)=>a-b),v=>F.depMax=v,v=>`보증금 ${w(v)}까지`);
+  if(F.rentMax!=null)firstGain([...new Set(live.flatMap(x=>x.offers.filter(o=>RENT_DEALS.includes(o.deal)).map(o=>o.rent)).filter(v=>v>F.rentMax))].sort((a,b)=>a-b),v=>F.rentMax=v,v=>`월세 ${w(v)}까지`);
+  if(F.rentMin!=null){const n=tryWith(()=>F.rentMin=null);if(n>base)out.push({label:"월세 최소 금액 없이",n:n-base,apply:()=>F.rentMin=null})}
+  if(F.depMin!=null){const n=tryWith(()=>F.depMin=null);if(n>base)out.push({label:"보증금 최소 금액 없이",n:n-base,apply:()=>F.depMin=null})}
+  if(F.pet&&!F.petLoose){const n=tryWith(()=>F.petLoose=true);if(n>base)out.push({label:"반려동물 '협의' 매물도",n:n-base,apply:()=>F.petLoose=true})}
+  if(F.types.size){let best=null;TYPE_WORDS.filter(t=>!F.types.has(t)).forEach(t=>{const n=tryWith(()=>F.types.add(t));if(n>base&&(!best||n>best.n))best={t,n}});
+    if(best)out.push({label:`${best.t}도 같이`,n:best.n-base,apply:()=>F.types.add(best.t)})}
+  if(F.deals.size){const n=tryWith(()=>F.deals.clear());if(n>base)out.push({label:"다른 거래 유형도",n:n-base,apply:()=>F.deals.clear()})}
+  if(F.kw){const n=tryWith(()=>F.kw="");if(n>base)out.push({label:CHAT_ON&&CHAT&&String(CHAT.location||"").includes(F.kw)?`${F.kw} 말고 다른 동네도`:`검색어 '${F.kw}' 없이`,n:n-base,apply:()=>{F.kw="";$("kw").value="";$("kwClear").classList.add("hidden")}})}
+  // 금액 두 개를 같이 올려야 나오는 경우: 다른 조건은 맞는 매물 중 '가장 적게 올리면 되는' 금액을 찾음
+  const priceCombo=(extraLabel,extra)=>{
+    if(F.depMax==null&&F.rentMax==null)return;
+    let cands=[];tryWith(()=>{extra&&extra();F.depMax=F.rentMax=F.depMin=F.rentMin=null;cands=filtered().filter(x=>!x.done)});
+    let best=null;
+    cands.forEach(x=>x.offers.forEach(o=>{
+      if(F.deals.size&&!F.deals.has(o.deal))return;
+      const isRent=RENT_DEALS.includes(o.deal);if(F.rentMax!=null&&!isRent)return;
+      const nd=F.depMax!=null?Math.max(F.depMax,o.dep):null, nr=F.rentMax!=null?Math.max(F.rentMax,o.rent):null;
+      const cost=(nd!=null?(nd-F.depMax)/Math.max(F.depMax,100):0)+(nr!=null?2*(nr-F.rentMax)/Math.max(F.rentMax,10):0);
+      if(!best||cost<best.cost)best={nd,nr,cost}}));
+    if(!best)return;
+    const b=best, apply=()=>{extra&&extra();if(b.nd!=null)F.depMax=b.nd;if(b.nr!=null)F.rentMax=b.nr};
+    const n=tryWith(apply);if(n<=base)return;
+    if(extraLabel&&out.some(o=>o.n>=n-base))return;   // 더 적게 바꾸고도 같은 수가 나오면 생략
+    const money=[b.nd!=null&&b.nd>F.depMax&&`보증금 ${w(b.nd)}`,b.nr!=null&&b.nr>F.rentMax&&`월세 ${w(b.nr)}`].filter(Boolean).join(" · ");
+    const label=[extraLabel,money&&money+"까지"].filter(Boolean).join(" + ");
+    if(label&&!out.some(o=>o.label===label))out.push({label,n:n-base,apply});
+  };
+  priceCombo();
+  if(F.pet&&!F.petLoose)priceCombo("반려동물 협의 포함",()=>F.petLoose=true);
+  if(!out.length&&F.types.size)priceCombo("구조 상관없이",()=>F.types.clear());
+  return out.sort((a,b)=>b.n-a.n).slice(0,3);
+}
+let RELAX=[];
+function drawRelax(){
+  const box=$("relaxBox"), base=activeCount();
+  const filtersOn=F.types.size||F.deals.size||F.pet||F.kw||F.depMin!=null||F.depMax!=null||F.rentMin!=null||F.rentMax!=null;
+  RELAX=(all.length&&filtersOn&&base<3)?relaxOptions(base):[];
+  if(!RELAX.length){box.classList.add("hidden");box.innerHTML="";return}
+  box.classList.remove("hidden");
+  box.innerHTML=`<div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+    <div class="text-xs font-extrabold text-amber-900 mb-2">💡 ${base?`지금 조건에 맞는 매물이 ${base}개뿐이에요.`:"지금 조건에 딱 맞는 매물은 없어요."} 조금만 넓히면</div>
+    <div class="space-y-1.5">${RELAX.map((r,i)=>`<button type="button" data-relax="${i}" class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-white border border-amber-200 text-left active:scale-[0.99] transition">
+      <span class="text-xs font-bold text-slate-800">${esc(r.label)}</span><span class="shrink-0 text-xs font-extrabold text-emerald-700">+${r.n}개 더 보기</span></button>`).join("")}</div></div>`;
+  box.querySelectorAll("[data-relax]").forEach(b=>b.onclick=()=>{const r=RELAX[+b.dataset.relax];if(!r)return;r.apply();
+    ["depMin","depMax","rentMin","rentMax"].forEach(i=>$(i).value=F[i]??"");
+    drawTx();drawProp();drawPet();drawQuick();syncRent();render();
+    toast(`'${r.label}'(으)로 넓혔어요. 매물 ${activeCount()}개`);
+    $("chatBanner").scrollIntoView({behavior:"smooth",block:"start"})});
 }
 function bindCard(a){
   a.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openModal(shown[+el.dataset.open]));
+  a.querySelectorAll("[data-pick]").forEach(el=>el.onclick=e=>{e.stopPropagation();togglePick(el.dataset.pick)});
   const n=+a.dataset.n; if(n<2)return;
   const t=a.querySelector(".carousel-track"),pg=a.querySelector(".pg"),ds=a.querySelectorAll(".dots span");
   t.addEventListener("scroll",()=>{const i=Math.round(t.scrollLeft/t.clientWidth);pg.textContent=`${i+1}/${n}`;
@@ -361,12 +541,13 @@ function openModal(x){
     }
   } else $("mMedia").innerHTML=fallback(x.type);
 
+  curItem=x;drawModalPick();
   $("modal").classList.remove("hidden");document.body.style.overflow="hidden";$("mOk").focus();
 }
 function closeModal(){$("modal").classList.add("hidden");document.body.style.overflow=""}
 ["mBack","mX","mOk"].forEach(id=>$(id).onclick=closeModal);
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape")closeModal();
+  if(e.key==="Escape"){closeModal();closeSend();if(typeof closeHelper==="function")closeHelper()}
   if($("modal").classList.contains("hidden"))return;
   if(e.key==="ArrowLeft"&&$("mPrev"))$("mPrev").click();
   if(e.key==="ArrowRight"&&$("mNext"))$("mNext").click();
@@ -381,9 +562,9 @@ function drawTx(){
 function drawPet(){
   const b=$("petToggle");b.setAttribute("aria-pressed",F.pet);
   b.className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl border text-xs font-bold transition-all "+(F.pet?"bg-emerald-700 text-white border-emerald-700 shadow-sm":"bg-white text-slate-600 border-slate-200 hover:bg-emerald-50");
-  b.textContent=F.pet?"🐾 반려동물 가능만 보는 중 (누르면 해제)":"🐾 반려동물 가능만 보기";
+  b.textContent=F.pet?(F.petLoose?"🐾 반려동물 가능·협의 보는 중 (누르면 해제)":"🐾 반려동물 가능만 보는 중 (누르면 해제)"):"🐾 반려동물 가능만 보기";
 }
-$("petToggle").onclick=()=>{F.pet=!F.pet;drawPet();render()};
+$("petToggle").onclick=()=>{F.pet=!F.pet;F.petLoose=false;drawPet();render()};
 function drawProp(){
   $("propBox").innerHTML=TYPES.map(t=>`<button type="button" data-p="${t}" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${(t==="전체"?!F.types.size:F.types.has(t))?'bg-wabang-600 text-white font-bold shadow-sm shadow-sky-200':'bg-slate-100 text-slate-600 font-semibold hover:bg-wabang-50'}">${t}</button>`).join("");
   $("propBox").querySelectorAll("button").forEach(b=>b.onclick=()=>{const t=b.dataset.p;if(t==="전체")F.types.clear();else F.types.has(t)?F.types.delete(t):F.types.add(t);drawProp();render()});
@@ -409,12 +590,14 @@ $("kw").addEventListener("input",e=>{F.kw=e.target.value;$("kwClear").classList.
 $("kwClear").onclick=()=>{$("kw").value="";F.kw="";$("kwClear").classList.add("hidden");render()};
 $("priceToggle").onclick=()=>{const hid=$("pricePanel").classList.toggle("hidden");$("chev").style.transform=hid?"":"rotate(180deg)"};
 function resetAll(){
-  F.deals.clear();F.types.clear();Object.assign(F,{pet:false,kw:"",depMin:null,depMax:null,rentMin:null,rentMax:null});
+  CHAT_ON=false;
+  F.deals.clear();F.types.clear();Object.assign(F,{pet:false,petLoose:false,kw:"",depMin:null,depMax:null,rentMin:null,rentMax:null});
   ["kw","depMin","depMax","rentMin","rentMax"].forEach(i=>$(i).value="");$("kwClear").classList.add("hidden");
   syncRent();drawTx();drawProp();drawPet();drawQuick();render();
 }
-["resetTop","resetPanel","resetEmpty"].forEach(id=>$(id).onclick=resetAll);
-$("homeBtn").onclick=e=>{e.preventDefault();closeModal();resetAll();$("pricePanel").classList.add("hidden");$("chev").style.transform="";window.scrollTo({top:0,behavior:"smooth"})};
+["resetPanel","resetEmpty"].forEach(id=>$(id).onclick=resetAll);   // 금액 패널·빈 화면: 필터만 초기화
+$("resetTop").onclick=()=>resetEverything(true);                      // 상단 초기화: 담기·조건까지 처음 상태로
+$("homeBtn").onclick=e=>{e.preventDefault();closeModal();resetEverything(false);$("pricePanel").classList.add("hidden");$("chev").style.transform="";window.scrollTo({top:0,behavior:"smooth"})};
 
 /* ---------- 로딩 ---------- */
 const SAMPLE=[
@@ -430,11 +613,313 @@ async function load(){
       const res=await fetch(CONFIG.CSV_URL+(CONFIG.CSV_URL.includes("?")?"&":"?")+"t="+Date.now()); // t= 값으로 캐시 우회
       if(!res.ok)throw new Error(res.status);
       const rows=parseCSV(await res.text()); rowCount=Math.max(rows.length-1,0); all=rows.length>1?toItems(rows):[];
-    } else all=SAMPLE;
+    } else all=SAMPLE.map((x,i)=>({id:"S"+(i+1),...x}));
   }catch(e){all=[];$("loading").classList.add("hidden");render();$("emptyTitle").textContent="매물을 불러오지 못했어요";$("emptyDesc").textContent="잠시 후 새로고침해 주세요. (원인: "+(e&&e.message||e)+")";$("resetEmpty").classList.add("hidden");return}
-  $("loading").classList.add("hidden");render();
+  $("loading").classList.add("hidden");
+  loadPicks();
+  if(CHAT&&FROM_URL)applyChat(); else render();
   if(!all.length&&rowCount>0)$("emptyDesc").textContent=`시트에서 ${rowCount}개 행을 읽었어요. 상태값 때문에 제외 ${DBG.st}개, 거래유형·금액이 없어 제외 ${DBG.off}개. (읽은 상태값: ${DBG.statuses.join(" / ")}) [읽은 열 이름: ${DBG.headers}]`;
+  // 중개사가 받은 링크(?item=번호)로 들어오면 그 매물 상세를 바로 열기
+  const itemId=new URLSearchParams(location.search).get("item");
+  if(itemId){const x=all.find(y=>y.id===itemId);if(x)openModal(x)}
 }
+
+/* =====================================================================
+   챗봇 연동: 챗봇이 ?chat={답변 JSON} 으로 넘겨준 조건을 필터로 자동 적용
+   ===================================================================== */
+const CHAT_LABELS=[["moveInDate","입주 시기"],["structure","구조"],["budget","예산"],["needs","꼭 필요한 조건"],["location","동네"],["viewingDate","방 보기"],
+  /* 예전 형식(질문 11개) 호환 */["deposit","보증금"],["monthlyRent","월세"],["adminFee","관리비"],["parking","주차 여부"],["pet","반려동물"],["options","옵션"],["priority","중요시 보는 부분"]];
+/* 새 형식 답이 있으면 거기서 풀어낸 항목(보증금·월세·반려동물·주차·옵션)은 중복이라 숨김 */
+const chatLabelsFor=c=>CHAT_LABELS.filter(([k])=>c[k]&&!(c.budget&&["deposit","monthlyRent"].includes(k))&&!(c.needs&&["pet","parking","options"].includes(k)));
+const isUrgent=c=>/즉시|1개월|이번\s*달|급/.test(String((c||{}).moveInDate||""));
+let CHAT=null, FROM_URL=false, CHAT_ON=false, TOKENS=[], curItem=null;
+const LS={get:k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+(function readChat(){
+  try{const p=new URLSearchParams(location.search).get("chat");
+    if(p){CHAT=JSON.parse(p);FROM_URL=true;LS.set("wabang_chat",{a:CHAT,t:Date.now()})}}catch(e){}
+  if(!CHAT){const s=LS.get("wabang_chat");if(s&&s.a&&Date.now()-s.t<14*864e5)CHAT=s.a}   // 2주 안에 받은 조건은 문의 보낼 때 같이 첨부
+})();
+
+/* "2억5천" → 25000 (만원 단위) */
+function krMoney(s){
+  s=String(s||"").replace(/,/g,"").replace(/\s/g,"");
+  const m=s.match(/(\d+(?:\.\d+)?)억(?:(\d+)(천)?)?/);
+  if(m)return parseFloat(m[1])*10000+(m[2]?(m[3]?parseInt(m[2])*1000:parseInt(m[2])):0);
+  const k=s.match(/(\d+(?:\.\d+)?)천/);if(k)return parseFloat(k[1])*1000;
+  const n=s.match(/\d+(?:\.\d+)?/);return n?parseFloat(n[0]):null;
+}
+const STOP=new Set(["상관없어요","없어요","강아지","고양이","지하철","도보","이내","인근","근처","직장","학교","직접입력","지역","필요","불필요","승용차","희망","상관없음","없음","특이사항","조용한","주변환경","이상","이하","무관","별도","포함","관리비","가능","시간","협의","깔끔한","컨디션","금액","가성비","교통편의","대형","정도","쪽으로","있는","좋은"]);
+function chatTokens(a){
+  const src=[a.location,a.options,a.priority].join(" ");
+  const t=src.split(/[\s,\/()·]+/).map(s=>s.replace(/[^가-힣A-Za-z0-9]/g,"").replace(/급$/,"")).filter(s=>s.length>=2&&!STOP.has(s)&&!/^\d/.test(s));
+  const pk=String(a.parking||"");if(pk&&!/불필요|없/.test(pk))t.push("주차");
+  return [...new Set(t)].slice(0,12);
+}
+function scoreItem(x){
+  if(!TOKENS.length)return [];
+  const h=[x.area,x.memo,x.type,x.dir,x.fee,x.floor].join(" ").toLowerCase();
+  return TOKENS.filter(t=>h.includes(t.toLowerCase()));
+}
+function applyChat(){
+  const a=CHAT||{},T=k=>String(a[k]||"");
+  F.deals.clear();F.types.clear();Object.assign(F,{pet:false,petLoose:false,kw:"",depMin:null,depMax:null,rentMin:null,rentMax:null});
+  TYPE_WORDS.forEach(w=>{if(T("structure").includes(w))F.types.add(w)});
+  const mr=T("monthlyRent").replace(/\s/g,""), wantJ=/전세/.test(mr), wantS=/매매/.test(mr), dep=T("deposit");
+  if(wantJ)F.deals.add("전세");if(wantS)F.deals.add("매매");
+  if(dep&&!/이상|무관|상관/.test(dep)){const v=krMoney(dep);if(v)F.depMax=v}     // 보증금(전세금) 예산 = 최대 금액
+  if(wantJ||wantS){const v=krMoney(mr.replace(/전세|매매|희망|\//g,""));if(v){if(/이상/.test(mr))F.depMin=v;else F.depMax=/억대/.test(mr)?v+9999:v}}
+  else{const ns=(mr.match(/\d+(?:\.\d+)?/g)||[]).map(Number);if(ns.length){if(/이상|초과/.test(mr))F.rentMin=ns[0];else F.rentMax=ns[ns.length-1]}}
+  const pet=T("pet");if(pet&&!/없/.test(pet))F.pet=true;
+  const loc=T("location");   // 동네 버튼(시트의 동 이름)을 고르면 그 동네로 거름
+  if(loc&&!/상관/.test(loc)){const d=[...new Set(all.map(x=>dong(x.area)).filter(Boolean))].find(d=>loc.includes(d));if(d)F.kw=d}
+  TOKENS=chatTokens(a).filter(t=>t!==F.kw);CHAT_ON=true;
+  ["kw","depMin","depMax","rentMin","rentMax"].forEach(i=>$(i).value=F[i]??"");$("kwClear").classList.toggle("hidden",!F.kw);
+  syncRent();drawTx();drawProp();drawPet();drawQuick();render();
+}
+function drawBanner(){
+  const b=$("chatBanner");
+  if(!CHAT){b.classList.add("hidden");return}
+  b.classList.remove("hidden");
+  if(!CHAT_ON){
+    b.innerHTML=`<button type="button" id="reChat" class="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-2xl bg-white border border-wabang-200 text-wabang-600 text-xs font-bold"><i class="ph-fill ph-chat-circle-text text-base"></i> 챗봇에서 알려주신 조건 다시 적용하기</button>`;
+    $("reChat").onclick=applyChat;return}
+  const w=v=>{const s=won(v);return /억$/.test(s)?s:s+"만"};
+  const r=(x,y)=>x==null&&y==null?"":x==null?`${w(y)} 이하`:y==null?`${w(x)} 이상`:`${w(x)}~${w(y)}`;
+  const chips=[...F.types,...F.deals,F.depMin!=null||F.depMax!=null?"보증금 "+r(F.depMin,F.depMax):"",F.rentMin!=null||F.rentMax!=null?"월세 "+r(F.rentMin,F.rentMax):"",F.pet?(F.petLoose?"🐾 반려동물 가능·협의":"🐾 반려동물 가능"):"",F.kw?"📍 "+F.kw:""].filter(Boolean);
+  b.innerHTML=`<div class="p-3.5 rounded-2xl bg-gradient-to-r from-wabang-600 to-sky-500 text-white shadow-md shadow-sky-200">
+    <div class="flex items-center justify-between gap-2 mb-2"><div class="text-sm font-extrabold flex items-center gap-1.5"><i class="ph-fill ph-paw-print text-lg"></i> 알려주신 조건에 맞는 매물</div>
+      <div class="shrink-0 flex gap-1"><button type="button" onclick="openHelper()" class="text-[11px] font-bold bg-white text-wabang-600 px-2.5 py-1 rounded-full">조건 수정</button><button type="button" id="chatOff" class="text-[11px] font-bold bg-white/20 px-2.5 py-1 rounded-full">전체 보기</button></div></div>
+    <div class="flex flex-wrap gap-1">${chips.map(c=>`<span class="px-2 py-0.5 rounded-lg bg-white/20 text-[11px] font-bold">${esc(c)}</span>`).join("")}${TOKENS.map(t=>`<span class="px-2 py-0.5 rounded-lg bg-white/10 text-[11px] font-semibold">#${esc(t)}</span>`).join("")}</div>
+    <p class="mt-2 text-[11px] text-white/85 leading-snug break-keep">마음에 드는 매물을 <b>♡ 담기</b> 한 뒤, 아래 버튼으로 중개사에게 보내주세요. 조건도 함께 전달돼요.</p></div>`;
+  $("chatOff").onclick=resetAll;
+}
+
+/* =====================================================================
+   매물 담기 (찜) → 중개사에게 보내기
+   ===================================================================== */
+let picks=new Set();
+function loadPicks(){const s=LS.get("wabang_picks");if(Array.isArray(s))picks=new Set(s.filter(id=>all.some(x=>x.id===id&&!x.done)))}
+const savePicks=()=>LS.set("wabang_picks",[...picks]);
+const pickedItems=()=>all.filter(x=>picks.has(x.id));
+function pickBtnHtml(x){const on=picks.has(x.id);
+  return `<button type="button" data-pick="${esc(x.id)}" aria-pressed="${on}" class="flex items-center justify-center gap-1 px-3 py-2 rounded-2xl border text-xs font-extrabold transition-colors ${on?'bg-rose-500 border-rose-500 text-white':'bg-white border-rose-200 text-rose-500 hover:bg-rose-50'}"><i class="${on?'ph-fill':'ph-bold'} ph-heart text-sm"></i> ${on?'담음':'담기'}</button>`}
+function togglePick(id){
+  picks.has(id)?picks.delete(id):picks.add(id);savePicks();
+  document.querySelectorAll(`[data-pick="${CSS.escape(id)}"]`).forEach(b=>b.outerHTML=pickBtnHtml(all.find(x=>x.id===id)));
+  document.querySelectorAll(`[data-pick="${CSS.escape(id)}"]`).forEach(el=>el.onclick=e=>{e.stopPropagation();togglePick(id)});
+  drawPickBar();drawModalPick();
+  if(!$("sendModal").classList.contains("hidden"))drawSend();
+  toast(picks.has(id)?"매물을 담았어요! 아래 버튼으로 중개사에게 보낼 수 있어요.":"담기를 취소했어요.");
+}
+function drawPickBar(){
+  const n=picks.size;$("pickCount").textContent=n?`담은 매물 ${n}개`:"조건만 보내기";
+  const barOn=!!(n||CHAT);$("pickBar").classList.toggle("hidden",!barOn);
+  $("helperWrap").style.bottom=`calc(env(safe-area-inset-bottom) + ${barOn?84:16}px)`;
+  $("helperLabel").textContent=CHAT?"조건 수정":"와방 도우미";
+}
+function drawModalPick(){
+  const b=$("mPick");if(!curItem||curItem.done){b.classList.add("hidden");return}
+  const on=picks.has(curItem.id);b.classList.remove("hidden");
+  b.className="flex-[1.4] py-3 rounded-2xl text-sm font-bold transition-all "+(on?"bg-rose-500 text-white":"bg-white border border-rose-200 text-rose-500");
+  b.innerHTML=`<i class="${on?'ph-fill':'ph-bold'} ph-heart"></i> ${on?'담음':'이 매물 담기'}`;
+}
+$("mPick").onclick=()=>curItem&&togglePick(curItem.id);
+
+const itemLink=x=>location.origin+location.pathname+"?item="+encodeURIComponent(x.id);
+let VIEW="";   // 도우미에서 건너뛴 경우 보내기 창에서 고르는 '방 볼 수 있는 날'
+const getChat=()=>{const c=Object.assign({},CHAT||{});if(VIEW&&!c.viewingDate)c.viewingDate=VIEW;return c};
+function chatLines(){const c=getChat();return chatLabelsFor(c).map(([k,l])=>`• ${l}: ${c[k]}`)}
+/* 중개사가 링크를 안 열어도 한눈에 판단할 수 있는 한 줄 요약: "전포동 투룸 · 500/55 · 3층 남향 · 🐾가능" */
+const dong=a=>{const p=String(a||"").trim().split(/\s+/);return p[p.length-1]||""};
+const shortPrice=o=>RENT_DEALS.includes(o.deal)?`${o.deal==="월세"?"":o.deal+" "}${won(o.dep)}/${won(o.rent)}`:`${o.deal} ${o.dep?won(o.dep):"문의"}`;
+const itemShort=x=>[`${dong(x.area)} ${x.types[0]||x.type}`.trim(),x.offers.map(shortPrice).join(", "),
+  [floorText(x.floor),x.dir].filter(Boolean).join(" "),x.pet&&"🐾"+x.pet].filter(Boolean).join(" · ");
+const condShort=c=>[c.structure,c.deposit&&"보증금 "+c.deposit,c.monthlyRent&&(/전세|매매/.test(c.monthlyRent)?c.monthlyRent:"월세 "+c.monthlyRent),
+  c.parking&&!/불필요/.test(c.parking)?("주차 "+c.parking.replace(/필요\s*/,"")).trim():"",c.pet&&!/없/.test(c.pet)?"🐾"+c.pet:"",c.location].filter(Boolean).join(" · ");
+function buildMsg(){
+  const code=inqCode();
+  const N="①②③④⑤⑥⑦⑧⑨⑩", items=pickedItems(), c=getChat();
+  const L=[`🏠 [와방 문의]${code?" 문의번호 "+code:""}${isUrgent(c)?" 🔥입주 급함":""}`];
+  if(c.viewingDate)L.push(`📅 방 보기: ${c.viewingDate}`);
+  if(c.moveInDate)L.push(`🚚 입주: ${c.moveInDate}`);
+  if(items.length){L.push(`❤️ 고른 매물 ${items.length}개`);items.forEach((x,k)=>L.push(`${N[k]||k+1+"."} #${x.id} ${itemShort(x)}`))}
+  else L.push("❤️ 고른 매물 없음 (조건만 먼저 보내요)");
+  const cs=condShort(c);if(cs)L.push("💬 "+cs);
+  const rest=chatLabelsFor(c).filter(([k])=>["options","priority","adminFee"].includes(k)).map(([k,l])=>`• ${l}: ${c[k]}`);
+  if(rest.length)L.push("",...rest);
+  if(items.length)L.push("","🔗 매물 사진 보기",...items.map(x=>`#${x.id} ${itemLink(x)}`));
+  return L.join("\n");
+}
+function drawSend(){
+  const items=pickedItems();
+  $("sItems").innerHTML=items.length?items.map(x=>`<div class="flex items-center gap-2 p-2.5 rounded-xl bg-wabang-50/70 border border-wabang-100">
+      <div class="w-12 h-12 rounded-lg overflow-hidden bg-wabang-100 shrink-0">${x.photos[0]?`<img src="${esc(x.photos[0])}" referrerpolicy="no-referrer" class="w-full h-full object-cover" onerror="this.remove()">`:""}</div>
+      <div class="min-w-0 flex-1"><div class="text-[11px] font-bold text-slate-500 truncate">#${esc(x.id)} · ${esc(x.type)} · ${esc(x.area)}</div><div class="text-sm font-extrabold text-slate-900 truncate">${esc(x.offers.map(priceText).join(" / "))}</div></div>
+      <button type="button" data-unpick="${esc(x.id)}" class="p-1.5 text-slate-400" aria-label="빼기"><i class="ph-bold ph-x"></i></button></div>`).join("")
+    :`<p class="text-xs text-slate-500 p-3 rounded-xl bg-slate-50 border border-slate-100 leading-relaxed">담은 매물이 없어요. 매물 카드의 <b class="text-rose-500">♡ 담기</b>를 누르면 여기에 들어가요. 이대로 보내면 <b>희망 조건만</b> 전달돼요.</p>`;
+  $("sItems").querySelectorAll("[data-unpick]").forEach(b=>b.onclick=()=>togglePick(b.dataset.unpick));
+  const cl=chatLines();
+  const needView=!(CHAT&&CHAT.viewingDate);
+  $("sView").innerHTML=needView?`<div class="text-xs font-bold text-slate-500 mb-1.5">📅 방 보실 수 있는 날 <span class="font-normal text-slate-400">(고르시면 일정 잡기가 빨라요)</span></div>
+    <div class="flex flex-wrap gap-1.5">${["이번 주 평일","이번 주 주말","다음 주","언제든 가능"].map(v=>`<button type="button" data-view="${v}" class="px-3 py-1.5 rounded-full text-xs font-bold border ${VIEW===v?"bg-wabang-600 text-white border-wabang-600":"bg-white text-slate-600 border-slate-200"}">${v}</button>`).join("")}</div>`:"";
+  $("sView").querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{VIEW=VIEW===b.dataset.view?"":b.dataset.view;drawSend()});
+  $("sChat").innerHTML=cl.length?`<div class="text-[11px] text-slate-600 p-3 rounded-xl bg-slate-50 border border-slate-100 leading-relaxed whitespace-pre-line">${esc(cl.join("\n"))}</div>`
+    :`<button type="button" onclick="closeSend();openHelper()" class="w-full flex items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-50 border border-dashed border-slate-300 text-xs font-bold text-slate-600"><i class="ph-fill ph-paw-print text-wabang-600"></i> 와방 도우미로 희망 조건도 같이 보내기</button>`;
+  updateSendLinks();
+}
+const IS_IOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const IS_MOBILE=IS_IOS||/Android/i.test(navigator.userAgent);
+function updateSendLinks(){
+  const msg=buildMsg();$("sPreview").textContent=msg;
+  // 문자: 받는 번호와 내용이 자동으로 채워져서 아이폰·갤럭시 모두 복사 없이 전송
+  $("sSms").href=`sms:${(CONFIG.PHONE||"").replace(/[^0-9+]/g,"")}${IS_IOS?"&":"?"}body=${encodeURIComponent(msg)}`;
+  $("sHint").innerHTML="누르면 "+(AUTO?"<b>문의번호</b>와 ":"")+"내용이 <b>복사</b>되고, 다음 화면에서 오픈카톡을 열어 <b>붙여넣기</b> 후 전송하면 끝이에요."
+    +(AUTO?"<br>전화번호는 받지 않아요. 답장은 오픈카톡으로 드려요.":"");
+}
+function openSend(){$("sDone").classList.add("hidden");$("sDone").classList.remove("flex");drawSend();$("sendModal").classList.remove("hidden");document.body.style.overflow="hidden"}
+function closeSend(){hideCopy();$("sendModal").classList.add("hidden");if($("modal").classList.contains("hidden"))document.body.style.overflow=""}
+$("pickBtn").onclick=openSend;["sBack","sX"].forEach(id=>$(id).onclick=closeSend);
+LS.set("wabang_who",null);   // 예전에 저장된 이름·연락처가 있으면 지움 (이제 받지 않음)
+
+/* 자동 접수 (INQUIRY_URL 이 있을 때만): 전화번호 없이 문의번호로 접수 → 손님은 같은 번호가 적힌 글을 오픈카톡에 붙여넣음
+   - 문의번호는 휴대폰에서 바로 만듦: 복사는 터치 직후 바로 해야 해서(아이폰) 서버 응답을 기다릴 수 없음
+   - 고른 매물·조건이 같으면 같은 번호를 다시 씀 → 여러 번 눌러도 접수는 한 번
+   - 실제 접수는 손님이 '오픈카톡 열기'(또는 인스타·문자·공유)를 누를 때 → 복사만 하고 나가면 접수 안 됨 */
+const inqSig=()=>JSON.stringify([pickedItems().map(x=>x.id),getChat()]);
+function inqCode(){
+  if(!AUTO)return "";
+  const sig=inqSig();
+  if(INQ.sig!==sig){
+    let c="";const r=new Uint8Array(5);
+    try{crypto.getRandomValues(r)}catch(e){for(let i=0;i<5;i++)r[i]=Math.random()*256}
+    r.forEach(b=>c+=CODE_CH[b%CODE_CH.length]);
+    INQ={sig,code:c,sent:false};
+  }
+  return INQ.code;
+}
+function submitInquiry(via){
+  if(!AUTO)return;
+  const code=inqCode();if(INQ.sent)return;INQ.sent=true;
+  const items=pickedItems(), sent=INQ;
+  const body=JSON.stringify({code,via,
+    items:items.map(x=>({id:x.id,type:x.type,area:x.area,short:itemShort(x),price:x.offers.map(priceText).join(" / "),link:itemLink(x)})),
+    chat:getChat(),message:buildMsg()});
+  // keepalive: 손님이 바로 카톡 앱으로 넘어가도 전송이 끊기지 않게
+  fetch(CONFIG.INQUIRY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body,keepalive:true})
+    .then(r=>r.json()).then(j=>{if(!j||j.ok===false)throw new Error(j&&j.error)})
+    .catch(()=>{sent.sent=false});   // 실패해도 손님이 보낸 오픈카톡 글에 내용이 다 있음 → 다음에 누르면 다시 시도
+}
+$("sSms").addEventListener("click",()=>submitInquiry("문자"));
+/* 복사 (아이폰·갤럭시·PC): 터치 직후 '동기적으로' 실행해야 함 (await 뒤에 하면 아이폰이 막음) */
+function copyNow(text){
+  let ok=false;const ta=document.createElement("textarea");
+  ta.value=text;ta.setAttribute("readonly","");
+  ta.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;opacity:0.01;font-size:16px;";
+  document.body.appendChild(ta);
+  try{ta.focus({preventScroll:true});ta.select();ta.setSelectionRange(0,text.length); // 아이폰은 select()만으론 선택이 안 됨
+    ok=document.execCommand("copy")}catch(e){ok=false}
+  document.body.removeChild(ta);try{window.getSelection().removeAllRanges()}catch(e){}
+  if(ok)return Promise.resolve(true);
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(text).then(()=>true,()=>false)}catch(e){}
+  return Promise.resolve(false)}
+/* 공유하기 (휴대폰): 공유 창에서 카톡·인스타 등 채팅방을 고르면 글이 바로 들어감 */
+var CAN_SHARE=IS_MOBILE&&typeof navigator.share==="function";
+if(CAN_SHARE){
+  const sh=$("sShare");sh.classList.remove("hidden");sh.classList.add("flex");
+  $("sRow").classList.replace("grid-cols-2","grid-cols-3");
+}
+$("sMore").addEventListener("click",()=>{
+  const row=$("sRow"),open=row.classList.contains("hidden");
+  row.classList.toggle("hidden",!open);row.classList.toggle("grid",open);
+  $("sMoreIco").className="ph-bold "+(open?"ph-caret-up":"ph-caret-down");
+});
+$("sShare").addEventListener("click",()=>{
+  const msg=buildMsg();
+  copyNow(msg); // 혹시 공유 앱이 글을 안 받아도 붙여넣기 할 수 있게 미리 복사
+  navigator.share({title:"와방 문의",text:msg})
+    .then(()=>{submitInquiry("공유");toast("보냈어요! 중개사가 확인하면 연락드려요 🙌")})
+    .catch(e=>{if(e&&e.name==="AbortError")return; // 손님이 공유 창을 닫음
+      showCopy("kakao",false)});
+});
+
+/* 1단계: 누르는 순간 복사 → 2단계: 확인 화면에서 오픈카톡/인스타 열기 */
+const PC_PASTE=!IS_MOBILE;
+let COPY_WHERE="kakao";
+function showCopy(where,ok){
+  const kakao=where==="kakao", msg=buildMsg(), code=inqCode();COPY_WHERE=where;
+  $("sCopyText").value=msg;
+  $("sCopyTitle").textContent=ok?(code?`✅ 문의번호 ${code} · 복사됐어요`:"✅ 내용이 복사됐어요"):"복사를 한 번만 도와주세요";
+  const paste=PC_PASTE?"<b>Ctrl+V</b>(맥은 ⌘+V)":"입력창을 <b>길게 눌러 '붙여넣기'</b>";
+  $("sCopyDesc").innerHTML=ok
+    ?`아래 버튼으로 ${kakao?"오픈카톡 채팅방":"인스타 프로필 → '메시지'"}을 열고 ${paste} 한 뒤 전송해 주세요.`
+    :`이 브라우저가 자동 복사를 막았어요. 아래 글을 ${PC_PASTE?"전체 선택(Ctrl+A) 후 <b>Ctrl+C</b>":"<b>길게 눌러 '전체 선택' → '복사'</b>"} 해 주세요. 그다음 아래 버튼을 눌러 붙여넣기 하면 돼요.`;
+  const go=$("sCopyGo");
+  go.href=kakao?CONFIG.KAKAO_OPENCHAT_URL:(IS_MOBILE?CONFIG.INSTAGRAM_DM_URL:CONFIG.INSTAGRAM_WEB_URL);
+  go.className="w-full py-3.5 rounded-2xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-md "+(kakao?"bg-[#FEE500] text-[#191919] shadow-yellow-200":"bg-wabang-600 text-white shadow-sky-200");
+  go.innerHTML=kakao?'<i class="ph-fill ph-chat-teardrop-text text-lg"></i>오픈카톡 열고 붙여넣기':'<i class="ph-bold ph-instagram-logo text-lg"></i>인스타 열고 붙여넣기';
+  $("sCopy").classList.remove("hidden");$("sCopy").classList.add("flex");
+  if(!ok){const t=$("sCopyText");setTimeout(()=>{try{t.focus();t.setSelectionRange(0,t.value.length)}catch(e){}},50)}
+}
+function hideCopy(){$("sCopy").classList.add("hidden");$("sCopy").classList.remove("flex")}
+function copyThen(where){copyNow(buildMsg()).then(ok=>showCopy(where,ok))}
+$("sKakao").addEventListener("click",()=>copyThen("kakao"));
+$("sInsta").addEventListener("click",()=>copyThen("insta"));
+$("sCopyX").addEventListener("click",hideCopy);
+$("sCopyAgain").addEventListener("click",()=>copyNow($("sCopyText").value).then(ok=>{
+  if(ok)toast("다시 복사했어요!");else{const t=$("sCopyText");t.focus();t.setSelectionRange(0,t.value.length);toast("글을 길게 눌러 '복사'해 주세요.")}}));
+$("sCopyGo").addEventListener("click",()=>{submitInquiry(COPY_WHERE==="kakao"?"오픈카톡":"인스타 DM");toast(PC_PASTE?"채팅창에서 Ctrl+V 하면 붙여넣어져요":"채팅창을 길게 눌러 '붙여넣기' 해주세요")});
+
+function toast(m){const t=$("toast");t.textContent=m;t.classList.remove("hidden");clearTimeout(window.__tt);window.__tt=setTimeout(()=>t.classList.add("hidden"),3200)}
+
+/* =====================================================================
+   와방 도우미: 매물 화면 위에 챗봇을 띄우고, 답할 때마다 목록을 바로 걸러줌
+   ===================================================================== */
+const HELPER_URL="chat/?embed=1";
+function openHelper(){
+  const f=$("helperFrame");
+  const src=f.getAttribute("src");
+  if(!src||src==="about:blank")f.setAttribute("src",HELPER_URL+(CHAT?"&prefill=1":""));
+  $("helperSheet").classList.remove("hidden");$("helperSheet").classList.add("flex");
+  document.body.style.overflow="hidden";hideBubble();
+}
+function closeHelper(){$("helperSheet").classList.add("hidden");$("helperSheet").classList.remove("flex");document.body.style.overflow=""}
+function hideBubble(){$("helperBubble").classList.add("hidden");LS.set("wabang_helper_seen",1)}
+$("helperBtn").onclick=openHelper;$("helperBack").onclick=closeHelper;$("bubbleX").onclick=hideBubble;
+const helperPost=msg=>{try{$("helperFrame").contentWindow.postMessage(Object.assign({wabang:true},msg),location.origin)}catch(e){}};
+const matchCount=()=>shown.filter(x=>!x.done).length;
+$("helperFrame").addEventListener("load",()=>{if(CHAT)helperPost({type:"prefill",answers:CHAT});helperPost({type:"count",n:matchCount()})});
+window.addEventListener("message",e=>{
+  if(e.origin!==location.origin||!e.data||!e.data.wabang)return;
+  const d=e.data;
+  if(d.type==="progress"){
+    const a=d.answers&&Object.keys(d.answers).length?d.answers:null;
+    CHAT=a;LS.set("wabang_chat",a?{a,t:Date.now()}:null);
+    if(a)applyChat();else{clearPicks();resetAll()}   // 도우미에서 '초기화' → 담은 매물도 비움
+    helperPost({type:"count",n:matchCount()});
+  }
+  if(d.type==="done"){
+    closeHelper();
+    const el=$("chatBanner");window.scrollTo({top:Math.max(0,el.getBoundingClientRect().top+window.scrollY-120),behavior:"smooth"});
+    const n=matchCount();
+    toast(n?`조건에 맞는 매물 ${n}개! 마음에 드는 매물을 ♡ 담아주세요.`:"딱 맞는 매물이 아직 없어요. 조건만 먼저 보내주셔도 돼요.");
+  }
+  if(d.type==="close")closeHelper();
+});
+// 첫 방문 손님에게만 말풍선으로 도우미 안내
+setTimeout(()=>{if(!CHAT&&!LS.get("wabang_helper_seen")&&$("helperSheet").classList.contains("hidden"))$("helperBubble").classList.remove("hidden")},1500);
+
+/* 처음 상태로: 필터 + 담은 매물 + 챗봇 조건 + 도우미 대화 */
+function clearPicks(){picks.clear();savePicks();VIEW="";drawPickBar()}
+function resetEverything(notify){
+  const had=picks.size;
+  clearPicks();
+  CHAT=null;TOKENS=[];LS.set("wabang_chat",null);
+  const f=$("helperFrame");if(f.getAttribute("src"))f.setAttribute("src","about:blank");   // 다음에 열면 새 대화
+  if(location.search){try{history.replaceState(null,"",location.pathname)}catch(e){}}    // 새로고침해도 예전 조건이 다시 적용되지 않게
+  closeSend();resetAll();
+  if(notify)toast(had?`처음 상태로 초기화했어요. 담은 매물 ${had}개도 비웠어요.`:"처음 상태로 초기화했어요.");
+}
+
 load();
 </script>
 </body>
