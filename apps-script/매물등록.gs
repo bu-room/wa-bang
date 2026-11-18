@@ -143,11 +143,9 @@ function saveListing_(d) {
 
     sh.appendRow(row);
     const r = sh.getLastRow();
-    // 타임스탬프 칸 표시 형식을 바로 위 줄(기존 폼 응답)과 맞춤
-    if (r > 2) {
-      const tc = H["타임스탬프"] + 1;
-      sh.getRange(r, tc).setNumberFormat(sh.getRange(r - 1, tc).getNumberFormat());
-    }
+    // 타임스탬프 칸을 구글폼과 같은 모양(2026. 11. 19 오전 7:15:33)으로 표시
+    // (위 줄 서식을 복사하면 표(Table) 시트에서 빈칸으로 보이는 경우가 있어서 직접 지정)
+    if (H["타임스탬프"] != null) sh.getRange(r, H["타임스탬프"] + 1).setNumberFormat("yyyy. M. d am/pm h:mm:ss");
     PROPS.setProperty("LAST_NO", String(no));
     return { ok: true, no: no, site: SITE_URL };
   } finally {
