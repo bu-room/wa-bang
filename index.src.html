@@ -244,7 +244,7 @@ const CONFIG = {
   <div id="mBox" class="modal-animate relative w-full max-w-md lg:max-w-5xl bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col z-10">
     <div id="mHeadBar" class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-white">
       <div id="mHead" class="flex items-center gap-2 flex-wrap"></div>
-      <button id="mX" class="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" aria-label="닫기"><i class="ph-bold ph-x text-base"></i></button>
+      <button id="mX" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" aria-label="닫기"><i class="ph-bold ph-x text-base block"></i></button>
     </div>
     <div id="mScroll" class="overflow-y-auto flex-1">
       <div id="mMedia" class="relative w-full aspect-[4/3] bg-wabang-50"></div>
@@ -292,7 +292,7 @@ const CONFIG = {
       </div>
       <div class="flex items-center gap-2">
         <button type="button" id="cSend" class="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"><i class="ph-bold ph-paper-plane-right"></i> 중개사에게 보내기</button>
-        <button type="button" id="cX" class="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" aria-label="닫기"><i class="ph-bold ph-x text-base"></i></button>
+        <button type="button" id="cX" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" aria-label="닫기"><i class="ph-bold ph-x text-base block"></i></button>
       </div>
     </div>
     <div id="cBody" class="overflow-auto p-5"></div>
@@ -308,7 +308,7 @@ const CONFIG = {
     <div id="sCopy" class="hidden absolute inset-0 z-30 bg-white flex-col gap-3 p-5 overflow-y-auto">
       <div class="flex items-center justify-between">
         <h4 id="sCopyTitle" class="text-base font-extrabold text-slate-900"></h4>
-        <button type="button" id="sCopyX" class="p-1.5 rounded-full bg-slate-100 text-slate-500" aria-label="뒤로"><i class="ph-bold ph-x text-base"></i></button>
+        <button type="button" id="sCopyX" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 text-slate-500" aria-label="뒤로"><i class="ph-bold ph-x text-base block"></i></button>
       </div>
       <p id="sCopyDesc" class="text-xs text-slate-600 leading-relaxed break-keep"></p>
       <textarea id="sCopyText" readonly class="w-full flex-1 min-h-[160px] p-3 rounded-xl bg-slate-50 border border-slate-200 text-[13px] text-slate-700 leading-relaxed resize-none"></textarea>
@@ -317,7 +317,7 @@ const CONFIG = {
     </div>
     <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
       <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-1.5"><i class="ph-fill ph-paper-plane-tilt text-wabang-600"></i> 중개사에게 보내기</h3>
-      <button id="sX" class="p-1.5 rounded-full bg-slate-100 text-slate-500" aria-label="닫기"><i class="ph-bold ph-x text-base"></i></button>
+      <button id="sX" class="w-8 h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 text-slate-500" aria-label="닫기"><i class="ph-bold ph-x text-base block"></i></button>
     </div>
     <div class="overflow-y-auto flex-1 p-5 space-y-4">
       <div>
@@ -515,8 +515,8 @@ function card(x,i){
     media=`<div class="relative group"><div class="carousel-track no-scrollbar">${slides}</div>
       ${multi?`<div class="pg absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-900/60 text-white text-[11px] font-bold tracking-wider z-10 pointer-events-none">1/${n}</div>
       <div class="dots absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/30 z-10 pointer-events-none">${x.photos.map((_,k)=>`<span class="h-1.5 rounded-full transition-all ${k?'w-1.5 bg-white/50':'w-3 bg-white'}"></span>`).join("")}</div>
-      <button type="button" class="prev hidden sm:flex absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-800 items-center justify-center shadow-md z-10" aria-label="이전 사진"><i class="ph-bold ph-caret-left text-sm"></i></button>
-      <button type="button" class="next hidden sm:flex absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-800 items-center justify-center shadow-md z-10" aria-label="다음 사진"><i class="ph-bold ph-caret-right text-sm"></i></button>`:""}</div>`;
+      <button type="button" class="prev hidden sm:flex absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-800 items-center justify-center shadow-md z-10" aria-label="이전 사진"><i class="ph-bold ph-caret-left text-sm block translate-x-[0.5px]"></i></button>
+      <button type="button" class="next hidden sm:flex absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-800 items-center justify-center shadow-md z-10" aria-label="다음 사진"><i class="ph-bold ph-caret-right text-sm block -translate-x-[0.5px]"></i></button>`:""}</div>`;
   } else media=`<div class="w-full aspect-[4/3] cursor-pointer" data-open="${i}">${fallback(x.type)}</div>`;
   const d=!!x.done;
   if(d)media=`<div class="relative"><div class="grayscale opacity-60">${media}</div><div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"><span class="px-5 py-2 rounded-2xl bg-slate-800/85 text-white text-lg font-extrabold tracking-wide">거래완료</span></div></div>`;
@@ -668,7 +668,7 @@ function openModal(x){
   $("mMemo").textContent=x.memo||"등록된 상세 메모가 없습니다.";
   const n=x.photos.length;
   if(n){
-    const arrow=(cls,side,ic,label)=>`<button type="button" id="${cls}" class="absolute ${side} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-slate-800 flex items-center justify-center shadow-md z-10" aria-label="${label}"><i class="ph-bold ${ic} text-base"></i></button>`;
+    const arrow=(cls,side,ic,label)=>`<button type="button" id="${cls}" class="absolute ${side} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-slate-800 flex items-center justify-center shadow-md z-10" aria-label="${label}"><i class="ph-bold ${ic} text-base block ${ic==="ph-caret-left"?"translate-x-[0.5px]":"-translate-x-[0.5px]"}"></i></button>`;
     $("mMedia").innerHTML=`<div id="mTrack" class="carousel-track no-scrollbar w-full h-full">${x.photos.map((p,k)=>`<div class="carousel-slide relative w-full h-full bg-slate-900 overflow-hidden"><img src="${esc(p)}" alt="" aria-hidden="true" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"><img src="${esc(p)}" alt="확대 사진 ${k+1}" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="IMGERR(this,'${esc(x.type)}')" class="relative w-full h-full object-contain"></div>`).join("")}</div>`
       +(n>1?`<div id="mPg" class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-bold z-10">1/${n}</div>
         ${arrow("mPrev","left-2.5","ph-caret-left","이전 사진")}${arrow("mNext","right-2.5","ph-caret-right","다음 사진")}

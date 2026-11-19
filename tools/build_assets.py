@@ -40,6 +40,13 @@ def icon_css(html):
         font = TTFont(f"{PH_DIR}/{folder}/{fam}.ttf")
         opt = subset.Options(); opt.flavor = "woff"; opt.layout_features = ["*"]; opt.name_IDs = ["*"]
         sub = subset.Subsetter(opt); sub.populate(unicodes=cps); sub.subset(font)
+        # 원본 글꼴은 hmtx 왼쪽 여백(lsb)이 0으로 적혀 있어서, 잘라낸 글꼴에서 아이콘이 왼쪽으로 쏠려 보임
+        # → 각 아이콘의 실제 왼쪽 끝(xMin)으로 맞춰서 원래 위치(가운데)에 그려지게 함
+        glyf, hmtx = font["glyf"], font["hmtx"]
+        for gname in font.getGlyphOrder():
+            g = glyf[gname]
+            if g.numberOfContours:
+                g.recalcBounds(glyf); adv, _ = hmtx[gname]; hmtx[gname] = (adv, g.xMin)
         buf = io.BytesIO(); font.flavor = "woff"; font.save(buf)
         data = base64.b64encode(buf.getvalue()).decode()
         out.append('@font-face{font-family:"%s";src:url(data:font/woff;base64,%s) format("woff");font-weight:normal;font-style:normal;font-display:block}' % (fam, data))
