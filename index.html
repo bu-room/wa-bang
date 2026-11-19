@@ -264,10 +264,12 @@ const CONFIG = {
 
 <!-- 하단 고정: 담은 매물 → 중개사에게 보내기 -->
 <div id="pickBar" class="hidden fixed bottom-0 inset-x-0 z-40 pointer-events-none" style="padding-bottom:env(safe-area-inset-bottom)">
-  <div class="max-w-md mx-auto px-4 pb-3 pointer-events-auto flex gap-2 lg:max-w-xl lg:pb-6">
-    <button id="pickBtn" type="button" class="flex-1 min-w-0 flex items-center justify-between gap-2 px-4 py-3.5 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/30 active:scale-[0.99] transition">
-      <span class="flex items-center gap-2 text-sm font-bold"><i class="ph-fill ph-heart text-rose-400 text-lg"></i><span id="pickCount">담은 매물 0개</span></span>
-      <span class="flex items-center gap-1 text-sm font-extrabold text-sky-300">중개사에게 보내기 <i class="ph-bold ph-paper-plane-right"></i></span>
+  <!-- 작은 알약 모양 버튼 (왼쪽 아래) — 매물을 가리지 않게. 오른쪽 아래는 와방 도우미 -->
+  <div class="max-w-md mx-auto px-4 pb-4 flex items-center gap-2 lg:max-w-[1260px] lg:px-6 lg:pb-6">
+    <button id="pickBtn" type="button" class="pointer-events-auto flex items-center gap-1.5 pl-3 pr-3.5 py-2.5 rounded-full bg-white/95 backdrop-blur border border-rose-200 text-slate-800 shadow-lg shadow-slate-900/10 active:scale-95 hover:border-rose-300 transition whitespace-nowrap">
+      <i class="ph-fill ph-heart text-rose-500 text-base"></i><span id="pickCount" class="text-[13px] font-bold">담은 매물 0</span>
+      <span class="w-px h-3.5 bg-slate-200 mx-0.5"></span>
+      <span class="flex items-center gap-1 text-[13px] font-extrabold text-wabang-600">보내기 <i class="ph-bold ph-paper-plane-right text-sm"></i></span>
     </button>
     <!-- PC 화면 전용: 담은 매물 2개 이상이면 비교 버튼 -->
     <button id="cmpBtn" type="button" class="hidden"><i class="ph-bold ph-columns text-base"></i>비교하기</button>
@@ -836,11 +838,11 @@ function togglePick(id){
   toast(picks.has(id)?"매물을 담았어요! 아래 버튼으로 중개사에게 보낼 수 있어요.":"담기를 취소했어요.");
 }
 function drawPickBar(){
-  const n=picks.size;$("pickCount").textContent=n?`담은 매물 ${n}개`:"조건만 보내기";
+  const n=picks.size;$("pickCount").textContent=n?`담은 매물 ${n}`:"희망 조건";
   const barOn=!!(n||CHAT);$("pickBar").classList.toggle("hidden",!barOn);
-  $("helperWrap").style.bottom=`calc(env(safe-area-inset-bottom) + ${barOn?84:16}px)`;
+  $("helperWrap").style.bottom="calc(env(safe-area-inset-bottom) + 16px)";   // 담기 버튼은 왼쪽 아래 작은 버튼이라 같은 줄에 둠
   $("helperLabel").textContent=CHAT?"조건 수정":"와방 도우미";
-  $("cmpBtn").className=n>=2?"hidden lg:flex shrink-0 items-center gap-1.5 px-4 rounded-2xl bg-white border border-slate-200 text-slate-800 text-sm font-extrabold shadow-xl shadow-slate-900/10 hover:border-wabang-400 hover:text-wabang-600 transition":"hidden";
+  $("cmpBtn").className=n>=2?"pointer-events-auto hidden lg:flex shrink-0 items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white/95 backdrop-blur border border-slate-200 text-slate-700 text-[13px] font-extrabold shadow-lg shadow-slate-900/10 hover:border-wabang-400 hover:text-wabang-600 transition":"hidden";
 }
 function drawModalPick(){
   const b=$("mPick");if(!curItem||curItem.done){b.classList.add("hidden");return}
