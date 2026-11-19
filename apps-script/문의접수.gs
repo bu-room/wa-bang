@@ -75,7 +75,7 @@ function doPost(e) {
       items.map(x => x.id).join(", "),
       items.map(x => `#${x.id} ${x.short || x.area}`).join("\n"),
       clean(c.viewingDate), clean(condText_(c)),
-      "신규", link, "", key,
+      "신규", linkCell_(link), "", key,
       JSON.stringify({ via: d.via || "", items, chat: c, message })
     ]);
     const row = sh.getLastRow();
@@ -105,6 +105,25 @@ function condText_(c) {
     c.pet && !/없/.test(c.pet) ? "🐾" + c.pet : "",
     c.location
   ].filter(Boolean).join(" · ");
+}
+/* 시트에는 긴 주소 대신 '📄 상세 보기' 글자만 보이게 (눌러서 여는 건 그대로) */
+function linkCell_(url) {
+  return '=HYPERLINK("' + String(url).replace(/"/g, '""') + '","📄 상세 보기")';
+}
+/* 한 번만 실행: 이미 접수된 문의의 긴 주소도 '📄 상세 보기'로 바꾸고 칸 폭을 줄임 */
+function 상세링크_짧게() {
+  const sh = getSheet_(), last = sh.getLastRow(), col = C["상세페이지"];
+  if (last >= 2) {
+    const rng = sh.getRange(2, col, last - 1, 1);
+    const vals = rng.getValues(), forms = rng.getFormulas();
+    let n = 0;
+    vals.forEach((v, i) => {
+      const u = String(v[0] || "");
+      if (!forms[i][0] && /^https?:\/\//.test(u)) { sh.getRange(i + 2, col).setFormula(linkCell_(u)); n++; }
+    });
+    Logger.log("✅ 상세페이지 링크 " + n + "개를 '📄 상세 보기'로 바꿨어요");
+  }
+  sh.setColumnWidth(col, 110);
 }
 function adminLink_(id, key) {
   return ADMIN_PAGE_URL + "?id=" + id + "&k=" + key + "&api=" + encodeURIComponent(ScriptApp.getService().getUrl());
