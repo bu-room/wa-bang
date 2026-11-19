@@ -226,8 +226,7 @@ function listListings_() {
   for (let i = vals.length - 1; i >= 0 && items.length < 300; i--) {
     const x = rowToListing_(H, vals[i], disp[i]);
     if (!x.no) continue;
-    items.push({ no: x.no, deals: x.deals, type: x.type.join(", "), area: x.area, dep: x.dep, rent: x.rent, jeon: x.jeon, sale: x.sale,
-                 status: x.status, photo: x.photos[0] || "", memo: x.memo.slice(0, 40) });
+    items.push(x);   // 수정에 필요한 값 전부 → 목록에서 누르면 다시 안 불러오고 바로 열림
   }
   return { ok: true, items: items };
 }
