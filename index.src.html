@@ -508,7 +508,9 @@ const priceLines=(x,cls)=>x.offers.map(o=>`<div class="${cls}">${esc(priceText(o
 function card(x,i){
   const n=x.photos.length; let media;
   if(n){
-    const slides=x.photos.map((p,k)=>`<div class="carousel-slide relative w-full aspect-[4/3] bg-wabang-50 overflow-hidden cursor-pointer" data-open="${i}"><img src="${esc(p)}" alt="${esc(x.area)} 매물 사진 ${k+1}" ${k||i>2?'loading="lazy"':'fetchpriority="'+(i?'auto':'high')+'"'} decoding="async" referrerpolicy="no-referrer" onerror="IMGERR(this,'${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("");
+    // 사진은 자르지 않고 전체를 보여줌 (세로 사진도 그대로). 남는 칸은 같은 사진을 흐리게 깔아서 채움
+    const slides=x.photos.map((p,k)=>{const ld=k||i>2?'loading="lazy"':'fetchpriority="'+(i?'auto':'high')+'"';
+      return `<div class="carousel-slide relative w-full aspect-[4/3] bg-slate-800 overflow-hidden cursor-pointer" data-open="${i}"><img src="${esc(p)}" alt="" aria-hidden="true" ${ld} decoding="async" referrerpolicy="no-referrer" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-70"><img src="${esc(p)}" alt="${esc(x.area)} 매물 사진 ${k+1}" ${ld} decoding="async" referrerpolicy="no-referrer" onerror="IMGERR(this,'${esc(x.type)}')" class="relative w-full h-full object-contain"></div>`}).join("");
     const multi=n>1;
     media=`<div class="relative group"><div class="carousel-track no-scrollbar">${slides}</div>
       ${multi?`<div class="pg absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-900/60 text-white text-[11px] font-bold tracking-wider z-10 pointer-events-none">1/${n}</div>
@@ -667,7 +669,7 @@ function openModal(x){
   const n=x.photos.length;
   if(n){
     const arrow=(cls,side,ic,label)=>`<button type="button" id="${cls}" class="absolute ${side} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-slate-800 flex items-center justify-center shadow-md z-10" aria-label="${label}"><i class="ph-bold ${ic} text-base"></i></button>`;
-    $("mMedia").innerHTML=`<div id="mTrack" class="carousel-track no-scrollbar w-full h-full">${x.photos.map((p,k)=>`<div class="carousel-slide w-full h-full bg-slate-900"><img src="${esc(p)}" alt="확대 사진 ${k+1}" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="IMGERR(this,'${esc(x.type)}')" class="w-full h-full object-cover"></div>`).join("")}</div>`
+    $("mMedia").innerHTML=`<div id="mTrack" class="carousel-track no-scrollbar w-full h-full">${x.photos.map((p,k)=>`<div class="carousel-slide relative w-full h-full bg-slate-900 overflow-hidden"><img src="${esc(p)}" alt="" aria-hidden="true" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-50"><img src="${esc(p)}" alt="확대 사진 ${k+1}" ${k?'loading="lazy"':''} referrerpolicy="no-referrer" onerror="IMGERR(this,'${esc(x.type)}')" class="relative w-full h-full object-contain"></div>`).join("")}</div>`
       +(n>1?`<div id="mPg" class="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-bold z-10">1/${n}</div>
         ${arrow("mPrev","left-2.5","ph-caret-left","이전 사진")}${arrow("mNext","right-2.5","ph-caret-right","다음 사진")}
         <div id="mDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/30 z-10 pointer-events-none">${x.photos.map((_,k)=>`<span class="h-1.5 rounded-full transition-all ${k?'w-1.5 bg-white/50':'w-3 bg-white'}"></span>`).join("")}</div>`:"");
