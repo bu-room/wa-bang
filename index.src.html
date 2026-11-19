@@ -91,8 +91,8 @@ const CONFIG = {
   <img src="banner.jpg" alt="와방 - 내가 찾는 집, 이제는 와방에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto lg:hidden" onerror="this.remove()">
 
   <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-wabang-100 px-4 pt-3.5 pb-3 lg:px-6 lg:!py-0" style="padding-top:max(.875rem,env(safe-area-inset-top))">
-    <div class="flex flex-wrap items-center justify-between lg:flex-nowrap lg:max-w-[1600px] lg:mx-auto lg:h-[68px] lg:gap-6">
-      <a href="./" id="homeBtn" class="order-1 shrink-0 flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
+    <div class="flex flex-wrap items-center justify-between gap-y-0 lg:flex-nowrap lg:max-w-[1600px] lg:mx-auto lg:h-[68px] lg:gap-6">
+      <a href="./" id="homeBtn" class="order-1 min-w-0 flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
         <div class="w-9 h-9 rounded-xl bg-wabang-600 flex items-center justify-center shadow-sm shadow-sky-200 shrink-0" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 3.2 2.8 11.1a1 1 0 0 0 .65 1.76H5V20a1 1 0 0 0 1 1h4.2v-5.6h3.6V21H18a1 1 0 0 0 1-1v-7.14h1.55a1 1 0 0 0 .65-1.76L12 3.2Z"/></svg>
         </div>
@@ -101,8 +101,8 @@ const CONFIG = {
           <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-wabang-100 text-wabang-600 whitespace-nowrap">공인중개사 이하늘</span>
         </div>
       </a>
-      <div class="order-2 lg:order-3 shrink-0 flex items-center gap-2">
-        <span id="countBadge" class="lg:hidden text-xs font-bold text-wabang-600 bg-wabang-50 border border-wabang-200 px-2.5 py-1 rounded-full whitespace-nowrap">매물 0건</span>
+      <div class="order-2 lg:order-3 shrink-0 flex items-center gap-1 lg:gap-2 ml-auto">
+        <span id="countBadge" class="lg:hidden text-[11px] font-bold text-wabang-600 bg-wabang-50 border border-wabang-200 px-2 py-1 rounded-full whitespace-nowrap">매물 0건</span>
         <a id="callBtn" class="hidden lg:!hidden p-1.5 rounded-full text-wabang-600 bg-wabang-50" aria-label="전화 문의"><i class="ph-fill ph-phone text-lg"></i></a>
         <!-- PC 화면 전용: 전화번호 · 인스타 DM · 오픈카톡 (주소는 CONFIG 값으로 자동 연결) -->
         <a id="pcPhone" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-wabang-600 text-sm font-extrabold whitespace-nowrap"><i class="ph-fill ph-phone text-base"></i><span id="pcPhoneTxt"></span></a>
@@ -520,10 +520,15 @@ function card(x,i){
   if(d)media=`<div class="relative"><div class="grayscale opacity-60">${media}</div><div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"><span class="px-5 py-2 rounded-2xl bg-slate-800/85 text-white text-lg font-extrabold tracking-wide">거래완료</span></div></div>`;
   return `<article class="wb-card lg:flex lg:flex-col ${d?'bg-slate-50':'bg-white'} rounded-3xl overflow-hidden border border-wabang-100 shadow-md shadow-sky-900/[0.04]" data-i="${i}" data-n="${n}">${media}
     <div class="p-4 lg:flex-1 ${d?'grayscale opacity-60':''}">
-      <div class="flex items-center gap-1.5 flex-wrap mb-2">${d?'<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-slate-700 text-white">거래완료</span>':''}${dealBadges(x)}
-        ${x.types.map(t=>`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600">${esc(t)}</span>`).join("")}
+      <!-- 윗줄: 거래유형·매물종류 (오른쪽 끝에 등록일) / 아랫줄: 지역·반려동물 -->
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <div class="flex items-center gap-1.5 flex-wrap min-w-0">${d?'<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-slate-700 text-white">거래완료</span>':''}${dealBadges(x)}${x.types.map(t=>`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600">${esc(t)}</span>`).join("")}</div>
+        ${regText(x)?`<span class="shrink-0 text-[11px] font-medium text-slate-400 whitespace-nowrap leading-[22px]">${regText(x)}</span>`:""}
+      </div>
+      <div class="flex items-center gap-2 flex-wrap mb-2.5 min-h-[22px]">
+        ${x.area?`<span class="inline-flex items-center gap-1 text-xs font-bold text-slate-700"><i class="ph-fill ph-map-pin text-wabang-500 text-sm"></i>${esc(x.area)}</span>`:""}
         ${petBadge(x)}
-        <span class="text-xs font-bold text-slate-600 ml-0.5">${esc(x.area)}</span>${regText(x)?`<span class="ml-auto text-[11px] font-medium text-slate-400 whitespace-nowrap">${regText(x)}</span>`:""}</div>
+      </div>
       <div class="flex items-end justify-between gap-2 mb-2.5">
         <div>${priceLines(x,d?"text-xl xl:text-lg font-extrabold text-slate-400 line-through tracking-tight leading-tight":"text-xl xl:text-lg font-extrabold text-slate-900 tracking-tight leading-tight")}
           ${x.fee?`<div class="text-xs font-semibold text-wabang-600 mt-0.5">관리비 ${esc(feeText(x.fee))}</div>`:""}</div>
@@ -543,7 +548,7 @@ function render(){
   if(CHAT_ON)shown.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||(b.hit.length-a.hit.length));  // 조건이 많이 맞는 매물 먼저
   sortShown();
   $("list").innerHTML=shown.map(card).join("");
-  {const act=shown.filter(x=>!x.done).length,dn=shown.length-act;$("countBadge").textContent=`매물 ${act}건`+(dn?` · 완료 ${dn}`:"");$("pcCount").textContent=act+(dn?` · 완료 ${dn}`:"")}
+  {const act=shown.filter(x=>!x.done).length,dn=shown.length-act;$("countBadge").innerHTML=`매물 ${act}건`+(dn?`<span class="max-[380px]:hidden"> · 완료 ${dn}</span>`:"");/* 아주 작은 휴대폰에서는 '완료 N' 생략 */$("pcCount").textContent=act+(dn?` · 완료 ${dn}`:"")}
   drawDongs();
   $("empty").classList.toggle("hidden",!!shown.length);
   if(!shown.length){const none=!all.length;$("emptyTitle").textContent=none?"등록된 매물이 없습니다":"조건에 맞는 매물이 없습니다";
