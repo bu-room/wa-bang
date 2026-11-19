@@ -91,7 +91,7 @@ const CONFIG = {
   <img src="banner.jpg" alt="와방 - 내가 찾는 집, 이제는 와방에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto lg:hidden" onerror="this.remove()">
 
   <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-wabang-100 px-4 pt-3.5 pb-3 lg:px-6 lg:!py-0" style="padding-top:max(.875rem,env(safe-area-inset-top))">
-    <div class="flex flex-wrap items-center justify-between lg:flex-nowrap lg:max-w-[1260px] lg:mx-auto lg:h-[68px] lg:gap-6">
+    <div class="flex flex-wrap items-center justify-between lg:flex-nowrap lg:max-w-[1600px] lg:mx-auto lg:h-[68px] lg:gap-6">
       <a href="./" id="homeBtn" class="order-1 shrink-0 flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
         <div class="w-9 h-9 rounded-xl bg-wabang-600 flex items-center justify-center shadow-sm shadow-sky-200 shrink-0" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 3.2 2.8 11.1a1 1 0 0 0 .65 1.76H5V20a1 1 0 0 0 1 1h4.2v-5.6h3.6V21H18a1 1 0 0 0 1-1v-7.14h1.55a1 1 0 0 0 .65-1.76L12 3.2Z"/></svg>
@@ -120,7 +120,7 @@ const CONFIG = {
 
   <!-- PC 화면 전용 안내 바 -->
   <div class="hidden lg:block bg-wabang-100/60 border-b border-wabang-200/60">
-    <div class="max-w-[1260px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
+    <div class="max-w-[1600px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <span class="text-xs font-bold text-wabang-600 bg-white px-2.5 py-1 rounded-md border border-wabang-200">직접 확인한 매물</span>
         <p class="text-sm font-bold text-slate-800">공인중개사 이하늘이 안내하는 매매 · 전세 · 월세 매물</p>
@@ -130,7 +130,7 @@ const CONFIG = {
   </div>
 
   <!-- PC: 오른쪽 필터 + 왼쪽 매물 목록 / 휴대폰: 위아래 그대로 -->
-  <div class="lg:max-w-[1260px] lg:mx-auto lg:px-6 lg:py-6 lg:flex lg:flex-row-reverse lg:items-start lg:gap-6">
+  <div class="lg:max-w-[1600px] lg:mx-auto lg:px-6 lg:py-6 lg:flex lg:flex-row-reverse lg:items-start lg:gap-6">
   <section class="bg-white px-4 py-3.5 border-b border-wabang-100 space-y-3.5 lg:w-[290px] lg:shrink-0 lg:sticky lg:top-[92px] lg:p-5 lg:rounded-2xl lg:border lg:max-h-[calc(100vh-110px)] lg:overflow-y-auto">
     <div class="hidden lg:flex items-center justify-between pb-3 border-b border-slate-100">
       <h2 class="text-sm font-extrabold text-slate-900">상세 조건</h2>
@@ -226,7 +226,7 @@ const CONFIG = {
   </div>
   </div><!-- /매물 목록 칸 -->
   </div><!-- /PC 2단 -->
-  <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6 lg:max-w-[1260px] lg:mx-auto lg:mt-10">
+  <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6 lg:max-w-[1600px] lg:mx-auto lg:mt-10">
     <p class="font-bold text-slate-600 mb-1">와방 · 공인중개사 이하늘</p>
     <p>본 페이지는 안내 링크를 전달받으신 고객님 전용 매물 카탈로그입니다.</p>
     <p class="mt-2">잇다공인중개사무소</p>
@@ -270,7 +270,7 @@ const CONFIG = {
 <!-- 하단 고정: 담은 매물 → 중개사에게 보내기 -->
 <div id="pickBar" class="hidden fixed bottom-0 inset-x-0 z-40 pointer-events-none" style="padding-bottom:env(safe-area-inset-bottom)">
   <!-- 작은 알약 모양 버튼 (왼쪽 아래) — 매물을 가리지 않게. 오른쪽 아래는 와방 도우미 -->
-  <div class="max-w-md mx-auto px-4 pb-4 flex items-center gap-2 lg:max-w-[1260px] lg:px-6 lg:pb-6">
+  <div class="max-w-md mx-auto px-4 pb-4 flex items-center gap-2 lg:max-w-[1600px] lg:px-6 lg:pb-6">
     <button id="pickBtn" type="button" class="pointer-events-auto flex items-center gap-1.5 pl-3 pr-3.5 py-2.5 rounded-full bg-white/95 backdrop-blur border border-rose-200 text-slate-800 shadow-lg shadow-slate-900/10 active:scale-95 hover:border-rose-300 transition whitespace-nowrap">
       <i class="ph-fill ph-heart text-rose-500 text-base"></i><span id="pickCount" class="text-[13px] font-bold">담은 매물 0</span>
       <span class="w-px h-3.5 bg-slate-200 mx-0.5"></span>
