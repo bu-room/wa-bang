@@ -225,8 +225,8 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
 const CONFIG = {
   /* 매물은 구글 시트에서 바로 받지 않고 '문지기(Cloudflare Worker)'를 거쳐서 받아요 (시트 주소는 여기 없음)
      문지기 주소·사람 확인 키를 비워두면 샘플 매물이 표시됩니다 (디자인 확인용) */
-  API_URL: "",              // 예: "https://wabang-gate.내계정.workers.dev"
-  TURNSTILE_SITEKEY: "",    // Cloudflare Turnstile 위젯의 '사이트 키' (공개돼도 되는 값)
+  API_URL: "https://wabang-gate.wabang0909.workers.dev",   // 매물 문지기 (Cloudflare Worker)
+  TURNSTILE_SITEKEY: "0x4AAAAAAGIm3K80akialxGh",    // Cloudflare Turnstile 위젯의 '사이트 키' (공개돼도 되는 값)
   PHONE: "010-4445-6432",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
   ACTIVE_WORD: "진행중",    // 상태가 이 값이면 표시. '거래완료', '삭제' 등은 숨김
   SHOW_BLANK_STATUS: true,  // true: 상태가 비어 있어도 표시
