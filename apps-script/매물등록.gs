@@ -18,6 +18,12 @@
  *  - (구글폼을 계속 써도) 폼 제출 시 매물번호·상태 자동 입력
  *  - 등록한 매물 수정 (사진 빼기·추가·순서, 금액·글자, 상태 진행중/거래완료/숨김)
  *  - 비밀번호 5번 틀리면 10분 잠금
+ *  - (매물 보호) 손님 사이트는 시트 CSV 대신 '문지기(Cloudflare Worker)'를 거쳐서만 매물을 받음
+ *      · 문지기만 아는 열쇠(WORKER_KEY)가 있어야 매물을 줌 → '설치하기' 실행 로그에 표시
+ *      · 진행중 매물 + 손님 화면에 쓰는 열만 줌 (다른 열·거래완료·숨김은 밖으로 안 나감)
+ *      · 거래완료·숨김 매물 사진은 링크 공개를 자동으로 끔 (매일 새벽 + 상태 바꿀 때 바로)
+ *      · 문지기가 이상한 조회를 막으면 내 메일로 알림
+ *    ※ 시트의 '파일 → 공유 → 웹에 게시'는 반드시 '게시 중지' 하세요 (안 하면 예전 CSV 주소로 다 보임)
  * ============================================================================= */
 
 const SHEET_ID          = "";            // 예: "1AbC...xyz" (시트 주소 /d/ 와 /edit 사이)
@@ -41,6 +47,13 @@ function doPost(e) {
   let d;
   try { d = JSON.parse((e && e.postData && e.postData.contents) || "{}"); }
   catch (err) { return json_({ ok: false, error: "요청 형식이 올바르지 않아요." }); }
+
+  // 문지기(Worker) 전용 요청: 등록 비밀번호 대신 WORKER_KEY 로 확인
+  if (d.action === "public" || d.action === "alert") {
+    if (!workerKeyOk_(d.key)) return json_({ ok: false, error: "forbidden" });
+    try { return json_(d.action === "public" ? publicListings_() : sendAlert_(d)); }
+    catch (err) { return json_({ ok: false, error: String((err && err.message) || err).slice(0, 300) }); }
+  }
 
   const authErr = checkPw_(d.pw);
   if (authErr) return json_({ ok: false, auth: true, error: authErr });
@@ -255,8 +268,13 @@ function updateListing_(d) {
     if (!r) return { ok: false, error: "매물 #" + d.no + " 을(를) 시트에서 못 찾았어요. (시트에서 지워졌을 수 있어요)" };
     const V = listingValues_(L, ids);
     if (STATUS_LIST.indexOf(L.status) >= 0) V["상태"] = L.status;
+    const oldIds = H["사진"] != null ? idsFromCell_(sh.getRange(r, H["사진"] + 1).getDisplayValue()) : [];
+    const st = H["상태"] != null ? String(V["상태"] || sh.getRange(r, H["상태"] + 1).getDisplayValue()).replace(/\s/g, "") : "";
     // 바꿀 칸만 하나씩 씀 → 타임스탬프·매물번호·그 밖의 열(수식 등)은 그대로
     Object.keys(V).forEach(k => { if (H[k] != null) sh.getRange(r, H[k] + 1).setValue(V[k]); });
+    // 진행중(또는 빈칸)이면 사진 공개, 거래완료·숨김이면 비공개. 수정하면서 뺀 사진은 비공개
+    setPhotoSharing_(ids, isOpenStatus_(st));
+    setPhotoSharing_(oldIds.filter(id => ids.indexOf(id) < 0), false);
     return { ok: true, no: d.no, site: SITE_URL };
   } finally {
     lock.releaseLock();
@@ -334,6 +352,97 @@ function 폼제출(e) {
   }
 }
 
+/* ------------------------------------- 손님 사이트용 매물 (문지기 전용) ---- */
+// 손님 화면에 쓰는 열만 밖으로 나감. 시트에 다른 열(주소·연락처·메모 등)이 있어도 안 나감
+const PUBLIC_COLS = ["매물번호", "타임스탬프", "거래유형", "매물종류", "지역", "보증금", "월세", "전세금", "매매가",
+                     "관리비", "전용면적", "공급면적", "층수", "방향", "반려동물", "한줄특징", "사진", "상태"];
+const ALERT_DAILY_LIMIT = 20;   // 하루 알림 메일 상한
+
+function isOpenStatus_(st) { st = String(st || "").replace(/\s/g, ""); return st === "" || st === "진행중"; }
+
+function workerKeyOk_(k) {
+  const real = PROPS.getProperty("WORKER_KEY");
+  return !!real && typeof k === "string" && k === real;
+}
+
+function publicListings_() {
+  const sh = listingSheet_();
+  const H = ensureCols_(sh);
+  const last = sh.getLastRow();
+  if (last < 2) return { ok: true, cols: PUBLIC_COLS, rows: [] };
+  const disp = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getDisplayValues();
+  const rows = [];
+  disp.forEach((r, i) => {
+    if (!r.some(v => String(v).trim() !== "")) return;
+    if (!isOpenStatus_(H["상태"] != null ? r[H["상태"]] : "")) return;   // 진행중(빈칸 포함)만
+    rows.push(PUBLIC_COLS.map(c => {
+      const v = H[c] == null ? "" : String(r[H[c]]).trim();
+      return c === "매물번호" && !v ? String(i + 2) : v;   // 번호가 비어 있으면 예전처럼 줄 번호
+    }));
+  });
+  return { ok: true, cols: PUBLIC_COLS, rows: rows };
+}
+
+/* 문지기가 이상한 조회(너무 많은 요청 등)를 막았을 때 내 메일로 알림 (같은 IP는 6시간에 1번) */
+function sendAlert_(d) {
+  const ip = String(d.ip || "").slice(0, 64), reason = String(d.reason || "").slice(0, 200);
+  const cache = CacheService.getScriptCache();
+  if (cache.get("ALERT_" + ip)) return { ok: true, skipped: true };
+  const today = Utilities.formatDate(new Date(), "Asia/Seoul", "yyyyMMdd");
+  const cnt = Number(PROPS.getProperty("ALERT_CNT_" + today) || 0);
+  if (cnt >= ALERT_DAILY_LIMIT) return { ok: true, skipped: true };
+  PROPS.setProperty("ALERT_CNT_" + today, String(cnt + 1));
+  cache.put("ALERT_" + ip, "1", 21600);
+  MailApp.sendEmail(Session.getEffectiveUser().getEmail(), "[와방] 매물 대량 조회를 차단했어요",
+    "와방 문지기가 이상한 매물 조회를 1시간 동안 차단했어요.\n\n" +
+    "· 시간: " + Utilities.formatDate(new Date(), "Asia/Seoul", "yyyy-MM-dd HH:mm") + "\n" +
+    "· IP: " + ip + "\n· 이유: " + reason + "\n\n" +
+    "한두 번이면 신경 안 쓰셔도 돼요. 같은 알림이 계속 오면 Claude에게 알려 주세요.");
+  return { ok: true };
+}
+
+/* 사진 공개/비공개 (이미 그 상태면 건드리지 않음) */
+function setPhotoSharing_(ids, open) {
+  (ids || []).forEach(id => {
+    try {
+      const f = DriveApp.getFileById(id);
+      const want = open ? DriveApp.Access.ANYONE_WITH_LINK : DriveApp.Access.PRIVATE;
+      if (f.getSharingAccess() !== want) f.setSharing(want, open ? DriveApp.Permission.VIEW : DriveApp.Permission.NONE);
+    } catch (e) { /* 지워졌거나 내 파일이 아닌 사진은 건너뜀 */ }
+  });
+}
+
+/* 매일 새벽 자동 실행: 진행중 매물 사진만 링크 공개, 거래완료·숨김 매물 사진은 비공개 */
+function 사진공개_정리() {
+  const sh = listingSheet_();
+  const H = ensureCols_(sh);
+  const last = sh.getLastRow();
+  if (last < 2 || H["사진"] == null) return;
+  const disp = sh.getRange(2, 1, last - 1, sh.getLastColumn()).getDisplayValues();
+  const start = Date.now();
+  let open = 0, close = 0;
+  for (const r of disp) {
+    if (Date.now() - start > 4.5 * 60 * 1000) break;   // Apps Script 6분 제한 전에 멈춤 (다음 날 이어서)
+    const ids = idsFromCell_(r[H["사진"]]);
+    if (!ids.length) continue;
+    const isOpen = isOpenStatus_(H["상태"] != null ? r[H["상태"]] : "");
+    setPhotoSharing_(ids, isOpen);
+    isOpen ? open += ids.length : close += ids.length;
+  }
+  Logger.log("✅ 사진 정리: 공개 " + open + "장, 비공개 " + close + "장");
+}
+
+function 문지기열쇠_보기() {
+  Logger.log("🔑 WORKER_KEY: " + (PROPS.getProperty("WORKER_KEY") || "(없음 → '설치하기'를 먼저 실행)"));
+}
+function 문지기열쇠_바꾸기() {
+  PROPS.setProperty("WORKER_KEY", newKey_());
+  Logger.log("🔑 새 WORKER_KEY: " + PROPS.getProperty("WORKER_KEY") + "  → Cloudflare 문지기의 GAS_KEY 도 같은 값으로 바꿔야 해요");
+}
+function newKey_() {
+  return (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, "");   // 64글자
+}
+
 /* ---------------------------------------------------------------- 설치 ---- */
 function 설치하기() {
   const sh = listingSheet_();
@@ -358,6 +467,15 @@ function 설치하기() {
     .forEach(t => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger("폼제출").forSpreadsheet(SHEET_ID).onFormSubmit().create();
   Logger.log("✅ 폼 제출 자동 처리 연결");
+
+  // 매일 새벽 5시: 거래완료·숨김 매물 사진 링크 공개 끄기
+  ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === "사진공개_정리")
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger("사진공개_정리").timeBased().everyDays(1).atHour(5).inTimezone("Asia/Seoul").create();
+  Logger.log("✅ 거래완료 사진 자동 비공개 (매일 새벽 5시)");
+
+  if (!PROPS.getProperty("WORKER_KEY")) PROPS.setProperty("WORKER_KEY", newKey_());
+  Logger.log("🔑 문지기 열쇠(WORKER_KEY): " + PROPS.getProperty("WORKER_KEY") + "  → Cloudflare 문지기 GAS_KEY 에 넣기");
 
   if (!PROPS.getProperty("REG_PW")) PROPS.setProperty("REG_PW", newPw_());
   Logger.log("🔑 등록 비밀번호: " + PROPS.getProperty("REG_PW") + "  (등록 페이지에 처음 한 번 입력)");

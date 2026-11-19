@@ -24,7 +24,7 @@
 <link rel="apple-touch-icon" href="Favicon.png">
 <!-- 외부 라이브러리는 버전을 고정 (업데이트로 화면이 갑자기 깨지지 않게) -->
 <!-- 매물 시트·사진 서버에 미리 연결해 두기 (첫 화면 조금 더 빠르게) -->
-<link rel="preconnect" href="https://docs.google.com">
+<link rel="preconnect" href="https://challenges.cloudflare.com">
 <link rel="preconnect" href="https://drive.google.com">
 <link rel="preconnect" href="https://lh3.googleusercontent.com">
 <script>
@@ -221,9 +221,12 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
 </head>
 <body class="bg-wabang-50 text-slate-800 antialiased selection:bg-wabang-200 selection:text-wabang-dark">
 <script>
-/* ============ [사장님 설정 영역] 구글 시트 CSV 링크를 붙여넣으세요 ============ */
+/* ============ [사장님 설정 영역] ============ */
 const CONFIG = {
-  CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbMZKKPwauBMpxxaghe0X3MrBg8q7fNpbQjRf0Se4QoSHUVupQNAgVJBL_8LLceWI3MoXF_1ClhGtY/pub?gid=2111395519&single=true&output=csv",              // 비워두면 샘플 매물 2개가 표시됩니다 (디자인 확인용)
+  /* 매물은 구글 시트에서 바로 받지 않고 '문지기(Cloudflare Worker)'를 거쳐서 받아요 (시트 주소는 여기 없음)
+     문지기 주소·사람 확인 키를 비워두면 샘플 매물이 표시됩니다 (디자인 확인용) */
+  API_URL: "",              // 예: "https://wabang-gate.내계정.workers.dev"
+  TURNSTILE_SITEKEY: "",    // Cloudflare Turnstile 위젯의 '사이트 키' (공개돼도 되는 값)
   PHONE: "010-4445-6432",                // 예: "010-1234-5678" (비워두면 전화 버튼 숨김)
   ACTIVE_WORD: "진행중",    // 상태가 이 값이면 표시. '거래완료', '삭제' 등은 숨김
   SHOW_BLANK_STATUS: true,  // true: 상태가 비어 있어도 표시
@@ -808,7 +811,8 @@ function bindCard(a){
 }
 
 /* ---------- 상세 팝업 ---------- */
-function openModal(x){
+function openModal(x){drawModal(x);loadDetail(x)}
+function drawModal(x){
   $("mHead").innerHTML=(x.done?'<span class="px-2.5 py-0.5 rounded-lg text-xs font-extrabold bg-slate-700 text-white">거래완료</span>':"")+dealBadges(x)+x.types.map(t=>`<span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600">${esc(t)}</span>`).join("")+`<span class="text-sm font-bold text-slate-800">${esc(x.area)}</span>`;
   $("mPrice").innerHTML=priceLines(x,"");
   $("mPrice").classList.toggle("text-slate-900",!x.done);$("mPrice").classList.toggle("text-slate-400",!!x.done);$("mPrice").classList.toggle("line-through",!!x.done);
@@ -910,25 +914,103 @@ const SAMPLE=[
  {types:["원룸"],type:"원룸",area:"서초구 서초동",fee:"포함",memo:"3개월 단기 가능, 가전 풀세팅.",offers:[{deal:"단기",dep:120,rent:120}],exc:"7",sup:"",floor:"3/5층",dir:"남향",pet:"불가",photos:[]},
  {done:true,types:["아파트"],type:"아파트",area:"송파구 잠실동",fee:"15만",memo:"거래가 완료된 매물 예시입니다.",offers:[{deal:"매매",dep:150000,rent:0}],exc:"24",sup:"33",floor:"12/20층",dir:"남향",pet:"협의",photos:[]}];
 let rowCount=0;
+/* ---------- 매물 문지기 (사람 확인 → 30분 입장권 → 목록 / 상세) ---------- */
+const API=(CONFIG.API_URL||"").replace(/\/+$/,"");
+const SS={get:k=>{try{return JSON.parse(sessionStorage.getItem(k)||"null")}catch(e){return null}},set:(k,v)=>{try{sessionStorage.setItem(k,JSON.stringify(v))}catch(e){}},del:k=>{try{sessionStorage.removeItem(k)}catch(e){}}};
+let TS_ID=null,TS_LOAD=null,TS_WAIT=[],TS_ERR=0,TS_DONE=()=>{};
+/* Turnstile 불러오기. 보통은 화면에 아무것도 안 보이고, 의심스러울 때만 아래쪽에 확인 칸이 뜸 */
+function tsLoad(){
+  if(TS_LOAD)return TS_LOAD;
+  TS_LOAD=new Promise((ok,no)=>{
+    window.__wbTs=()=>ok();
+    const s=document.createElement("script");
+    s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__wbTs";s.async=true;
+    s.onerror=()=>{TS_LOAD=null;no(new Error("turnstile load"))};
+    document.head.appendChild(s);
+  });
+  return TS_LOAD;
+}
+function tsBox(show){
+  let b=document.getElementById("tsBox");
+  if(!b){b=document.createElement("div");b.id="tsBox";
+    b.style.cssText="position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:95;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:calc(100vw - 24px)";
+    b.innerHTML='<div id="tsMsg" style="display:none;background:#fff;border-radius:14px;padding:8px 14px;font-size:13px;font-weight:700;color:#0f172a;box-shadow:0 6px 20px rgba(15,23,42,.18)">매물을 보려면 아래 칸을 눌러 주세요 (사람 확인)</div><div id="tsWidget"></div>';
+    document.body.appendChild(b)}
+  if(show!=null)document.getElementById("tsMsg").style.display=show?"block":"none";
+}
+async function tsToken(){
+  await tsLoad();tsBox();
+  return new Promise((ok,no)=>{
+    TS_WAIT.push({ok,no});
+    // 손님이 확인 칸을 안 누르고 있으면 1분 뒤 실패로 처리 (저장해 둔 목록은 그대로 보임)
+    const tm=setTimeout(()=>done("no",new Error("turnstile timeout")),60000);
+    const done=(f,v)=>{clearTimeout(tm);TS_ERR=0;const w=TS_WAIT;TS_WAIT=[];w.forEach(p=>p[f](v))};
+    TS_DONE=done;
+    if(TS_ID===null){
+      TS_ID=turnstile.render("#tsWidget",{sitekey:CONFIG.TURNSTILE_SITEKEY,appearance:"interaction-only",language:"ko",retry:"auto",
+        callback:t=>{tsBox(false);TS_DONE("ok",t)},
+        "error-callback":()=>{if(++TS_ERR>=3)TS_DONE("no",new Error("turnstile"))},   // 일시 오류는 자동 재시도, 3번 연속이면 실패
+        "expired-callback":()=>{},
+        "before-interactive-callback":()=>tsBox(true),
+        "after-interactive-callback":()=>tsBox(false)});
+    } else turnstile.reset(TS_ID);
+  });
+}
+/* 입장권 (이 탭에서 30분 유지, 끝나기 1분 전이면 새로 받음) */
+let SES_P=null;
+function session(force){
+  if(!force){const s=SS.get("wabang_s");if(s&&s.exp*1000>Date.now()+60000)return Promise.resolve(s.token)}
+  if(SES_P)return SES_P;
+  SES_P=(async()=>{
+    const t=await tsToken();
+    const r=await fetch(API+"/session",{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({t})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok)throw new Error("session "+r.status);
+    SS.set("wabang_s",{token:j.token,exp:j.exp});return j.token;
+  })().finally(()=>{SES_P=null});
+  return SES_P;
+}
+async function api(path){
+  for(let i=0;i<2;i++){
+    const s=await session(i>0);
+    const r=await fetch(API+path+(path.includes("?")?"&":"?")+"s="+encodeURIComponent(s));
+    if(r.status===401){SS.del("wabang_s");continue}
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok)throw new Error((j.error||"error")+" "+r.status);
+    return j;
+  }
+  throw new Error("session");
+}
+/* 상세: 매물을 열 때 그 매물만 받아서 나머지 사진·공급면적·방향을 채움 */
+async function loadDetail(x){
+  if(!API||x.full||x.loadingFull||/^S\d/.test(x.id))return;
+  x.loadingFull=true;
+  try{
+    const j=await api("/item?id="+encodeURIComponent(x.id));
+    const keep=Object.assign({},DBG);const it=toItems([j.cols,j.row])[0];Object.assign(DBG,keep);
+    if(it){x.photos=it.photos.length?it.photos:x.photos;x.sup=it.sup;x.dir=it.dir;x.full=true;
+      if(curItem===x&&!$("modal").classList.contains("hidden"))drawModal(x)}
+  }catch(e){console.warn("[와방] 매물 상세 불러오기 실패:",e)}
+  finally{x.loadingFull=false}
+}
 async function load(){
   if(CONFIG.PHONE){const t="tel:"+CONFIG.PHONE.replace(/[^0-9+]/g,"");$("callBtn").href=t;$("callBtn").classList.remove("hidden");$("mCall").href=t;$("mCall").classList.remove("hidden");$("pcPhone").href=t;$("pcPhoneTxt").textContent=CONFIG.PHONE}
   else $("pcPhone").remove();
   // PC 화면 상단·필터 칸 상담 버튼
   $("pcInsta").href=CONFIG.INSTAGRAM_WEB_URL;$("pcKakao").href=$("pcKakao2").href=CONFIG.KAKAO_OPENCHAT_URL;
   drawTx();drawProp();drawPet();drawDone();drawQuick();syncRent();
-  if(!CONFIG.CSV_URL.startsWith("http")){all=SAMPLE.map((x,i)=>({id:"S"+(i+1),...x}));firstShow();return}
-  const CK="wabang_csv", useText=t=>{Object.assign(DBG,{st:0,off:0,statuses:[],headers:""});const rows=parseCSV(t);rowCount=Math.max(rows.length-1,0);all=rows.length>1?toItems(rows):[]};
+  if(!API||!CONFIG.TURNSTILE_SITEKEY){all=SAMPLE.map((x,i)=>({id:"S"+(i+1),...x}));firstShow();return}
+  try{localStorage.removeItem("wabang_csv")}catch(e){}   // 예전 방식(시트 CSV)으로 저장해 둔 목록 지우기
+  const CK="wabang_list", useData=d=>{Object.assign(DBG,{st:0,off:0,statuses:[],headers:""});rowCount=d.rows.length;all=d.rows.length?toItems([d.cols,...d.rows]):[]};
   // 1) 이 기기에 저장해 둔 지난 목록이 있으면 먼저 바로 보여줌 (기다림 없음)
   const saved=LS.get(CK);
-  if(saved&&saved.text){try{useText(saved.text);firstShow()}catch(e){}}
-  // 2) 구글 시트에서 최신 목록을 받아서, 바뀐 게 있으면 다시 그림
+  if(saved&&saved.d){try{useData(saved.d);firstShow()}catch(e){}}
+  // 2) 문지기에서 최신 목록(카드에 필요한 정보 + 대표사진 1장)을 받아서, 바뀐 게 있으면 다시 그림
   try{
-    const res=await fetch(CONFIG.CSV_URL+(CONFIG.CSV_URL.includes("?")?"&":"?")+"t="+Date.now()); // t= 값으로 캐시 우회
-    if(!res.ok)throw new Error(res.status);
-    const text=await res.text();
-    if(saved&&saved.text===text&&SHOWN_ONCE)return;      // 그대로면 끝
-    LS.set(CK,{text,t:Date.now()});
-    useText(text);
+    const j=await api("/list"), d={cols:j.cols,rows:j.rows};
+    if(saved&&JSON.stringify(saved.d)===JSON.stringify(d)&&SHOWN_ONCE)return;      // 그대로면 끝
+    LS.set(CK,{d,t:Date.now()});
+    useData(d);
     if(SHOWN_ONCE){loadPicks();render();drawPickBar()} else firstShow();
   }catch(e){
     if(SHOWN_ONCE)return;    // 저장된 목록을 이미 보여주고 있으면 조용히 넘어감

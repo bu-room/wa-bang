@@ -106,9 +106,9 @@
     const CONFIG = {
       PHONE: "010-4445-6432",                                   // 중개사 휴대폰 번호
       LISTING_SITE_URL: "https://skylee-lang.github.io/wa-bang/", // 와방 매물 보는 사이트 주소
-      // 매물 시트 CSV (동네 버튼을 자동으로 만들 때 사용, 매물 사이트와 같은 주소)
       KAKAO_OPENCHAT_URL: "https://open.kakao.com/o/sPQtqVTi",   // 오픈카톡 (요약 카드의 노란 버튼)
-      CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbMZKKPwauBMpxxaghe0X3MrBg8q7fNpbQjRf0Se4QoSHUVupQNAgVJBL_8LLceWI3MoXF_1ClhGtY/pub?gid=2111395519&single=true&output=csv"
+      // 매물 문지기 주소 (동네 버튼을 자동으로 만들 때 사용, 매물 사이트 CONFIG.API_URL 과 같은 값)
+      API_URL: ""
     };
   </script>
   <!-- ============================================== -->
@@ -309,20 +309,11 @@
     let AREA_CHIPS = [];
     (async function loadAreaChips() {
       try {
-        if (!CONFIG.CSV_URL) return;
-        const t = (await (await fetch(CONFIG.CSV_URL + "&t=" + Date.now())).text()).replace(/^\uFEFF/, "");
-        const rows = []; let row = [], cur = "", q = false;
-        for (let i = 0; i < t.length; i++) { const c = t[i];
-          if (q) { if (c === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
-          else if (c === '"') q = true; else if (c === ",") { row.push(cur); cur = ""; }
-          else if (c === "\n" || c === "\r") { if (c === "\r" && t[i + 1] === "\n") i++; row.push(cur); cur = ""; rows.push(row); row = []; } else cur += c; }
-        if (cur || row.length) { row.push(cur); rows.push(row); }
-        const h = (rows[0] || []).map(x => x.replace(/\s/g, "")), ai = h.indexOf("지역"), si = h.indexOf("상태");
-        if (ai < 0) return;
-        const cnt = {};
-        rows.slice(1).forEach(r => { if (si >= 0 && /완료|삭제/.test(r[si] || "")) return;
-          const parts = String(r[ai] || "").trim().split(/\s+/), d = parts[parts.length - 1]; if (d) cnt[d] = (cnt[d] || 0) + 1; });
-        AREA_CHIPS = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([d]) => d);
+        if (!CONFIG.API_URL) return;
+        // 동네 이름만 받음 (매물 정보는 안 받음)
+        const j = await (await fetch(CONFIG.API_URL.replace(/\/+$/, "") + "/regions")).json();
+        if (!j.ok || !Array.isArray(j.regions)) return;
+        AREA_CHIPS = j.regions.slice(0, 6);
         const loc = STEPS.find(s => s.key === "location");
         loc.chips = [...AREA_CHIPS, "상관없어요"];
         if (STEPS[currentStepIdx] === loc) renderQuickChips(loc.chips, false);
