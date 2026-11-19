@@ -41,6 +41,24 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
   button:focus-visible,input:focus-visible{outline:2px solid #0284C7;outline-offset:2px}
   /* 기기 기본 한글 글꼴: 아이폰·맥(애플 SD 고딕) / 갤럭시(삼성 기본·Noto) / 윈도우(맑은 고딕) */
   html,body,button,input,textarea,select{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕","Noto Sans KR",Roboto,"Helvetica Neue","Segoe UI",sans-serif}
+  /* ===== PC·노트북 화면 (가로 1024px 이상): 오른쪽 고정 필터 + 여러 줄 카드. 휴대폰 화면은 그대로 ===== */
+  @media (min-width:1024px){
+    #pricePanel{display:block!important;margin-top:0}
+    #priceToggle{display:none}
+    #helperWrap{bottom:24px!important}
+    /* 상세 팝업: 왼쪽 사진 / 오른쪽 정보 */
+    #mBox{display:grid;grid-template-columns:56% 44%;grid-template-rows:auto minmax(0,1fr) auto;height:min(660px,88vh);max-height:none}
+    #mScroll{display:contents}
+    #mHeadBar{grid-column:2;grid-row:1}
+    #mMedia{grid-column:1;grid-row:1 / span 3;aspect-ratio:auto;height:100%;background:#0F172A}
+    #mInfo{grid-column:2;grid-row:2;overflow-y:auto;min-height:0}
+    #mFoot{grid-column:2;grid-row:3}
+    /* 와방 도우미: 화면 오른쪽 아래 채팅 창 */
+    #helperSheet{justify-content:flex-end;align-items:flex-end;padding:24px}
+    #helperPanel{max-width:420px;height:min(760px,calc(100vh - 48px))!important;border-radius:1.5rem}
+    .wb-card{transition:box-shadow .2s,transform .2s}
+    .wb-card:hover{box-shadow:0 12px 28px rgba(12,74,110,.10);transform:translateY(-2px)}
+  }
 </style>
 </head>
 <body class="bg-wabang-50 text-slate-800 antialiased selection:bg-wabang-200 selection:text-wabang-dark">
@@ -62,14 +80,14 @@ const CONFIG = {
 /* ============================================================================ */
 </script>
 
-<div class="max-w-md mx-auto min-h-screen bg-[#F5FAFF] shadow-xl shadow-sky-900/5 relative pb-20">
+<div class="max-w-md mx-auto min-h-screen bg-[#F5FAFF] shadow-xl shadow-sky-900/5 relative pb-20 lg:max-w-none lg:shadow-none lg:bg-[#F3F7FB] lg:pb-28">
 
   <!-- 상단 배너: banner.jpg 를 index.html 과 같은 폴더에 두세요 (없으면 자동으로 숨겨집니다) -->
-  <img src="banner.jpg" alt="와방 - 내가 찾는 집, 이제는 와방에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto" onerror="this.remove()">
+  <img src="banner.jpg" alt="와방 - 내가 찾는 집, 이제는 와방에서!" width="1000" height="563" fetchpriority="high" class="block w-full h-auto lg:hidden" onerror="this.remove()">
 
-  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-wabang-100 px-4 pt-3.5 pb-3" style="padding-top:max(.875rem,env(safe-area-inset-top))">
-    <div class="flex items-center justify-between mb-3">
-      <a href="./" id="homeBtn" class="flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-wabang-100 px-4 pt-3.5 pb-3 lg:px-6 lg:!py-0" style="padding-top:max(.875rem,env(safe-area-inset-top))">
+    <div class="flex flex-wrap items-center justify-between lg:flex-nowrap lg:max-w-[1260px] lg:mx-auto lg:h-[68px] lg:gap-6">
+      <a href="./" id="homeBtn" class="order-1 shrink-0 flex items-center gap-2" aria-label="와방 홈으로 (필터 초기화)">
         <div class="w-9 h-9 rounded-xl bg-wabang-600 flex items-center justify-center shadow-sm shadow-sky-200 shrink-0" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M12 3.2 2.8 11.1a1 1 0 0 0 .65 1.76H5V20a1 1 0 0 0 1 1h4.2v-5.6h3.6V21H18a1 1 0 0 0 1-1v-7.14h1.55a1 1 0 0 0 .65-1.76L12 3.2Z"/></svg>
         </div>
@@ -78,30 +96,53 @@ const CONFIG = {
           <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-wabang-100 text-wabang-600 whitespace-nowrap">공인중개사 이하늘</span>
         </div>
       </a>
-      <div class="flex items-center gap-2">
-        <span id="countBadge" class="text-xs font-bold text-wabang-600 bg-wabang-50 border border-wabang-200 px-2.5 py-1 rounded-full whitespace-nowrap">매물 0건</span>
-        <a id="callBtn" class="hidden p-1.5 rounded-full text-wabang-600 bg-wabang-50" aria-label="전화 문의"><i class="ph-fill ph-phone text-lg"></i></a>
+      <div class="order-2 lg:order-3 shrink-0 flex items-center gap-2">
+        <span id="countBadge" class="lg:hidden text-xs font-bold text-wabang-600 bg-wabang-50 border border-wabang-200 px-2.5 py-1 rounded-full whitespace-nowrap">매물 0건</span>
+        <a id="callBtn" class="hidden lg:!hidden p-1.5 rounded-full text-wabang-600 bg-wabang-50" aria-label="전화 문의"><i class="ph-fill ph-phone text-lg"></i></a>
+        <!-- PC 화면 전용: 전화번호 · 인스타 DM · 오픈카톡 (주소는 CONFIG 값으로 자동 연결) -->
+        <a id="pcPhone" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-wabang-600 text-sm font-extrabold whitespace-nowrap"><i class="ph-fill ph-phone text-base"></i><span id="pcPhoneTxt"></span></a>
+        <a id="pcInsta" target="_blank" rel="noopener noreferrer" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold whitespace-nowrap"><i class="ph-bold ph-instagram-logo text-sm"></i>인스타 DM</a>
+        <a id="pcKakao" target="_blank" rel="noopener noreferrer" class="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FEE500] hover:bg-[#F5DC00] text-[#191919] text-xs font-extrabold whitespace-nowrap"><i class="ph-fill ph-chat-teardrop-text text-sm"></i>오픈카톡 상담</a>
         <button id="resetTop" title="처음부터 다시 (담은 매물·조건 초기화)" aria-label="처음부터 다시 (담은 매물·조건 초기화)" class="p-1.5 rounded-full text-slate-400 hover:text-wabang-600 hover:bg-wabang-50"><i class="ph ph-arrows-clockwise text-lg"></i></button>
       </div>
-    </div>
-    <div class="relative">
-      <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-wabang-500 text-lg"></i>
-      <input id="kw" type="text" placeholder="지역명, 역세권, 풀옵션, 주차 등 검색..." class="w-full pl-10 pr-9 py-2.5 bg-wabang-50/80 border border-wabang-200/80 rounded-2xl text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-wabang-400 focus:ring-2 focus:ring-wabang-100 transition-all">
-      <button id="kwClear" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-label="검색어 지우기"><i class="ph-fill ph-x-circle text-base"></i></button>
+      <div class="order-3 lg:order-2 relative w-full mt-3 lg:mt-0 lg:flex-1 lg:max-w-xl">
+        <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-wabang-500 text-lg"></i>
+        <input id="kw" type="text" placeholder="지역명, 역세권, 풀옵션, 주차 등 검색..." class="w-full pl-10 pr-9 py-2.5 bg-wabang-50/80 border border-wabang-200/80 rounded-2xl text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:border-wabang-400 focus:ring-2 focus:ring-wabang-100 transition-all">
+        <button id="kwClear" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-label="검색어 지우기"><i class="ph-fill ph-x-circle text-base"></i></button>
+      </div>
     </div>
   </header>
 
-  <section class="bg-white px-4 py-3.5 border-b border-wabang-100 space-y-3.5">
+  <!-- PC 화면 전용 안내 바 -->
+  <div class="hidden lg:block bg-wabang-100/60 border-b border-wabang-200/60">
+    <div class="max-w-[1260px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-wabang-600 bg-white px-2.5 py-1 rounded-md border border-wabang-200">직접 확인한 매물</span>
+        <p class="text-sm font-bold text-slate-800">공인중개사 이하늘이 안내하는 매매 · 전세 · 월세 매물</p>
+      </div>
+      <p class="text-xs text-slate-500">마음에 드는 매물은 <b class="text-rose-500">♡ 담기</b> → 나란히 비교하거나 중개사에게 한 번에 보낼 수 있어요.</p>
+    </div>
+  </div>
+
+  <!-- PC: 오른쪽 필터 + 왼쪽 매물 목록 / 휴대폰: 위아래 그대로 -->
+  <div class="lg:max-w-[1260px] lg:mx-auto lg:px-6 lg:py-6 lg:flex lg:flex-row-reverse lg:items-start lg:gap-6">
+  <section class="bg-white px-4 py-3.5 border-b border-wabang-100 space-y-3.5 lg:w-[290px] lg:shrink-0 lg:sticky lg:top-[92px] lg:p-5 lg:rounded-2xl lg:border lg:max-h-[calc(100vh-110px)] lg:overflow-y-auto">
+    <div class="hidden lg:flex items-center justify-between pb-3 border-b border-slate-100">
+      <h2 class="text-sm font-extrabold text-slate-900">상세 조건</h2>
+      <button type="button" id="pcReset" class="text-xs text-slate-400 hover:text-slate-700 underline underline-offset-2">초기화</button>
+    </div>
     <div>
       <span class="block text-xs font-bold text-slate-500 mb-1.5">거래 유형 <span class="text-[11px] font-normal text-wabang-600">(중복 선택 가능)</span></span>
       <div id="txBox" class="flex flex-wrap gap-1.5"></div>
     </div>
     <div>
       <span class="block text-xs font-bold text-slate-500 mb-1.5">매물 종류 <span class="text-[11px] font-normal text-wabang-600">(중복 선택 가능)</span></span>
-      <div id="propBox" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+      <div id="propBox" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5 lg:flex-wrap lg:overflow-visible"></div>
     </div>
     <button id="petToggle" type="button" aria-pressed="false" class="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl border text-xs font-bold transition-all"></button>
+    <button id="doneToggle" type="button" aria-pressed="false" class="hidden"></button>
     <div class="pt-1">
+      <span class="hidden lg:block text-xs font-bold text-slate-500 mb-1.5">금액 범위</span>
       <button id="priceToggle" type="button" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-wabang-50 border border-wabang-200/80 text-xs font-bold text-wabang-600 hover:bg-wabang-100/70 transition-all">
         <span class="flex items-center gap-1.5"><i class="ph-fill ph-sliders-horizontal text-base"></i><span id="priceSummary">보증금 / 월세 금액 범위 설정</span></span>
         <i id="chev" class="ph ph-caret-down text-sm transition-transform duration-200"></i>
@@ -137,14 +178,36 @@ const CONFIG = {
         </div>
       </div>
     </div>
+    <!-- PC 화면 전용: 맞춤 문의 안내 -->
+    <div class="hidden lg:block pt-4 border-t border-slate-100">
+      <p class="text-xs font-bold text-slate-800 mb-1">찾으시는 조건이 따로 있으신가요?</p>
+      <p class="text-[11px] text-slate-500 leading-relaxed mb-3 break-keep">와방 도우미에 몇 가지만 답하시면 맞는 매물만 골라드려요.</p>
+      <button type="button" onclick="openHelper()" class="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-wabang-600 hover:bg-wabang-dark text-white text-xs font-bold transition-colors"><i class="ph-fill ph-paw-print text-sm"></i> 와방 도우미로 찾기</button>
+      <a id="pcKakao2" target="_blank" rel="noopener noreferrer" class="mt-1.5 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#FEE500] hover:bg-[#F5DC00] text-[#191919] text-xs font-bold transition-colors"><i class="ph-fill ph-chat-teardrop-text text-sm"></i> 오픈카톡으로 바로 문의</a>
+    </div>
   </section>
 
-  <!-- 챗봇에서 넘어온 조건 안내 배너 -->
-  <div id="chatBanner" class="hidden mx-4 mt-4"></div>
-  <!-- 매물이 0~2개일 때: 조건을 조금 넓히면 몇 개 더 나오는지 제안 -->
-  <div id="relaxBox" class="hidden mx-4 mt-3"></div>
+  <div class="lg:flex-1 lg:min-w-0">
+  <!-- PC 화면 전용: 동네 탭 · 결과 수 · 정렬 -->
+  <div class="hidden lg:flex items-center justify-between gap-3 bg-white rounded-2xl border border-wabang-100 px-4 py-3 mb-4">
+    <div id="dongTabs" class="flex items-center gap-1.5 flex-wrap"></div>
+    <div class="flex items-center gap-3 shrink-0">
+      <span class="text-xs font-bold text-slate-600 whitespace-nowrap">검색 결과 <span id="pcCount" class="text-wabang-600">0</span>건</span>
+      <select id="sortSel" class="bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:border-wabang-400 cursor-pointer">
+        <option value="new">기본순 (최신 등록)</option>
+        <option value="cost">월 고정비 낮은순</option>
+        <option value="rent">월세 낮은순</option>
+        <option value="dep">보증금·가격 낮은순</option>
+      </select>
+    </div>
+  </div>
 
-  <main id="list" class="px-4 py-4 space-y-5"></main>
+  <!-- 챗봇에서 넘어온 조건 안내 배너 -->
+  <div id="chatBanner" class="hidden mx-4 mt-4 lg:mx-0 lg:mt-0 lg:mb-4"></div>
+  <!-- 매물이 0~2개일 때: 조건을 조금 넓히면 몇 개 더 나오는지 제안 -->
+  <div id="relaxBox" class="hidden mx-4 mt-3 lg:mx-0 lg:mt-0 lg:mb-4"></div>
+
+  <main id="list" class="px-4 py-4 space-y-5 lg:p-0 lg:space-y-0 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-5"></main>
 
   <div id="loading" class="py-16 text-center space-y-3">
     <div class="w-10 h-10 border-4 border-wabang-200 border-t-wabang-500 rounded-full animate-spin mx-auto"></div>
@@ -156,7 +219,9 @@ const CONFIG = {
     <p id="emptyDesc" class="text-xs text-slate-500 mb-5">금액 범위나 선택하신 거래 유형을 조금 넓혀서 다시 검색해 보세요.</p>
     <button id="resetEmpty" class="px-5 py-2.5 rounded-2xl bg-wabang-600 text-white text-xs font-bold shadow-md shadow-sky-200 hover:bg-wabang-dark transition-all">모든 필터 초기화하기</button>
   </div>
-  <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6">
+  </div><!-- /매물 목록 칸 -->
+  </div><!-- /PC 2단 -->
+  <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6 lg:max-w-[1260px] lg:mx-auto lg:mt-10">
     <p class="font-bold text-slate-600 mb-1">와방 · 공인중개사 이하늘</p>
     <p>본 페이지는 안내 링크를 전달받으신 고객님 전용 매물 카탈로그입니다.</p>
     <p class="mt-2">잇다공인중개사무소</p>
@@ -171,14 +236,14 @@ const CONFIG = {
 <!-- 상세 팝업 -->
 <div id="modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 p-0 sm:p-4" role="dialog" aria-modal="true" aria-label="매물 상세 정보">
   <div class="absolute inset-0" id="mBack"></div>
-  <div class="modal-animate relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col z-10">
-    <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-white">
+  <div id="mBox" class="modal-animate relative w-full max-w-md lg:max-w-5xl bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col z-10">
+    <div id="mHeadBar" class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-white">
       <div id="mHead" class="flex items-center gap-2 flex-wrap"></div>
       <button id="mX" class="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" aria-label="닫기"><i class="ph-bold ph-x text-base"></i></button>
     </div>
-    <div class="overflow-y-auto flex-1">
+    <div id="mScroll" class="overflow-y-auto flex-1">
       <div id="mMedia" class="relative w-full aspect-[4/3] bg-wabang-50"></div>
-      <div class="p-5 space-y-5">
+      <div id="mInfo" class="p-5 space-y-5">
         <div><div id="mPrice" class="text-2xl font-extrabold text-slate-900 tracking-tight leading-snug"></div><div id="mFee" class="text-xs font-semibold text-wabang-600 mt-1"></div></div>
         <div id="mPet"></div>
         <div class="grid grid-cols-3 gap-2.5">
@@ -189,7 +254,7 @@ const CONFIG = {
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100"><h4 class="text-xs font-bold text-slate-500 mb-1.5">매물 특징 및 상세 안내</h4><p id="mMemo" class="text-sm text-slate-700 leading-relaxed whitespace-pre-line"></p></div>
       </div>
     </div>
-    <div class="p-4 border-t border-slate-100 bg-white flex gap-2">
+    <div id="mFoot" class="p-4 border-t border-slate-100 bg-white flex gap-2">
       <a id="mCall" class="hidden flex-1 text-center py-3 rounded-2xl bg-wabang-50 border border-wabang-200 text-wabang-600 text-sm font-bold">전화 문의</a>
       <button id="mPick" type="button" class="hidden flex-[1.4] py-3 rounded-2xl text-sm font-bold transition-all"></button>
       <button id="mOk" class="flex-1 py-3 rounded-2xl bg-wabang-600 text-white text-sm font-bold shadow-md shadow-sky-200 hover:bg-wabang-dark transition-all">확인 완료</button>
@@ -199,11 +264,31 @@ const CONFIG = {
 
 <!-- 하단 고정: 담은 매물 → 중개사에게 보내기 -->
 <div id="pickBar" class="hidden fixed bottom-0 inset-x-0 z-40 pointer-events-none" style="padding-bottom:env(safe-area-inset-bottom)">
-  <div class="max-w-md mx-auto px-4 pb-3 pointer-events-auto">
-    <button id="pickBtn" type="button" class="w-full flex items-center justify-between gap-2 px-4 py-3.5 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/30 active:scale-[0.99] transition">
+  <div class="max-w-md mx-auto px-4 pb-3 pointer-events-auto flex gap-2 lg:max-w-xl lg:pb-6">
+    <button id="pickBtn" type="button" class="flex-1 min-w-0 flex items-center justify-between gap-2 px-4 py-3.5 rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-900/30 active:scale-[0.99] transition">
       <span class="flex items-center gap-2 text-sm font-bold"><i class="ph-fill ph-heart text-rose-400 text-lg"></i><span id="pickCount">담은 매물 0개</span></span>
       <span class="flex items-center gap-1 text-sm font-extrabold text-sky-300">중개사에게 보내기 <i class="ph-bold ph-paper-plane-right"></i></span>
     </button>
+    <!-- PC 화면 전용: 담은 매물 2개 이상이면 비교 버튼 -->
+    <button id="cmpBtn" type="button" class="hidden"><i class="ph-bold ph-columns text-base"></i>비교하기</button>
+  </div>
+</div>
+
+<!-- 담은 매물 나란히 비교 (PC) -->
+<div id="cmpModal" class="hidden fixed inset-0 z-[54] items-center justify-center bg-slate-900/60 p-6" role="dialog" aria-modal="true" aria-label="담은 매물 비교">
+  <div class="absolute inset-0" id="cBack"></div>
+  <div class="modal-animate relative w-full max-w-5xl bg-white rounded-3xl overflow-hidden shadow-2xl max-h-[88vh] flex flex-col z-10">
+    <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-100">
+      <div>
+        <h3 class="text-base font-extrabold text-slate-900 flex items-center gap-1.5"><i class="ph-fill ph-heart text-rose-500"></i> 담은 매물 나란히 비교</h3>
+        <p class="text-xs text-slate-500 mt-0.5">가격·관리비·평수·층수·방향을 한 표에서 비교해요.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" id="cSend" class="flex items-center gap-1 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold"><i class="ph-bold ph-paper-plane-right"></i> 중개사에게 보내기</button>
+        <button type="button" id="cX" class="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200" aria-label="닫기"><i class="ph-bold ph-x text-base"></i></button>
+      </div>
+    </div>
+    <div id="cBody" class="overflow-auto p-5"></div>
   </div>
 </div>
 
@@ -260,7 +345,7 @@ const CONFIG = {
 
 <!-- 와방 도우미: 하단 버튼 + 첫 방문 말풍선 -->
 <div id="helperWrap" class="fixed z-40 inset-x-0 pointer-events-none transition-all duration-200" style="bottom:calc(env(safe-area-inset-bottom) + 16px)">
-  <div class="max-w-md mx-auto px-4 flex flex-col items-end gap-2">
+  <div class="max-w-md mx-auto px-4 flex flex-col items-end gap-2 lg:max-w-none lg:px-6">
     <div id="helperBubble" class="hidden pointer-events-auto relative max-w-[250px] pl-3.5 pr-7 py-2.5 rounded-2xl rounded-br-md bg-white border border-wabang-200 shadow-lg text-xs text-slate-700 leading-snug break-keep">
       <button type="button" id="bubbleX" class="absolute top-1.5 right-1.5 p-1 text-slate-400" aria-label="닫기"><i class="ph-bold ph-x text-[11px]"></i></button>
       <b class="text-slate-900">어떤 집 찾으세요?</b><br>질문 몇 개에 답하면 <b class="text-wabang-600">맞는 매물만</b> 바로 골라드려요 🐾
@@ -274,7 +359,7 @@ const CONFIG = {
 <!-- 와방 도우미 바텀시트 (챗봇) -->
 <div id="helperSheet" class="hidden fixed inset-0 z-[52] items-end justify-center bg-slate-900/40" role="dialog" aria-modal="true" aria-label="와방 도우미">
   <div class="absolute inset-0" id="helperBack"></div>
-  <div class="modal-animate relative w-full max-w-md bg-white rounded-t-3xl overflow-hidden shadow-2xl" style="height:88vh;height:88dvh">
+  <div id="helperPanel" class="modal-animate relative w-full max-w-md bg-white rounded-t-3xl overflow-hidden shadow-2xl" style="height:88vh;height:88dvh">
     <div class="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300 z-10 pointer-events-none"></div>
     <iframe id="helperFrame" title="와방 도우미" allow="clipboard-write" class="w-full h-full border-0 block"></iframe>
   </div>
@@ -304,7 +389,8 @@ const RENT_QUICK=[["~50만",null,50],["50~100만",50,100],["100~400만",100,400]
 const QBTN="px-2 py-1 text-[11px] font-medium bg-white border border-slate-200 rounded-lg text-slate-600 hover:border-wabang-400 hover:text-wabang-600";
 
 let all=[], shown=[];
-const F={deals:new Set(),types:new Set(),kw:"",pet:false,depMin:null,depMax:null,rentMin:null,rentMax:null};
+const F={deals:new Set(),types:new Set(),kw:"",pet:false,hideDone:false,depMin:null,depMax:null,rentMin:null,rentMax:null};
+let SORT="new";   // PC 화면 정렬 (휴대폰은 항상 기본순)
 
 /* ---------- CSV ---------- */
 function parseCSV(t){const rows=[];let row=[],cur="",q=false;t=t.replace(/^\uFEFF/,"");
@@ -386,6 +472,7 @@ function filtered(){const kw=F.kw.trim().toLowerCase();
   return all.filter(x=>{
     if(F.types.size&&!x.types.some(t=>F.types.has(t)))return false;
     if(F.pet&&!(x.pet==="가능"||(F.petLoose&&x.pet==="협의")))return false;
+    if(F.hideDone&&x.done)return false;
     if(kw&&!(x.area+" "+x.memo+" "+x.type+" "+x.dir+" "+x.offers.map(o=>o.deal).join(" ")).toLowerCase().includes(kw))return false;
     return x.offers.some(offerOk)})}
 
@@ -410,14 +497,14 @@ function card(x,i){
   } else media=`<div class="w-full aspect-[4/3] cursor-pointer" data-open="${i}">${fallback(x.type)}</div>`;
   const d=!!x.done;
   if(d)media=`<div class="relative"><div class="grayscale opacity-60">${media}</div><div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20"><span class="px-5 py-2 rounded-2xl bg-slate-800/85 text-white text-lg font-extrabold tracking-wide">거래완료</span></div></div>`;
-  return `<article class="${d?'bg-slate-50':'bg-white'} rounded-3xl overflow-hidden border border-wabang-100 shadow-md shadow-sky-900/[0.04]" data-i="${i}" data-n="${n}">${media}
-    <div class="p-4 ${d?'grayscale opacity-60':''}">
+  return `<article class="wb-card lg:flex lg:flex-col ${d?'bg-slate-50':'bg-white'} rounded-3xl overflow-hidden border border-wabang-100 shadow-md shadow-sky-900/[0.04]" data-i="${i}" data-n="${n}">${media}
+    <div class="p-4 lg:flex-1 ${d?'grayscale opacity-60':''}">
       <div class="flex items-center gap-1.5 flex-wrap mb-2">${d?'<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-extrabold bg-slate-700 text-white">거래완료</span>':''}${dealBadges(x)}
         ${x.types.map(t=>`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600">${esc(t)}</span>`).join("")}
         ${petBadge(x)}
         <span class="text-xs font-bold text-slate-600 ml-0.5">${esc(x.area)}</span></div>
       <div class="flex items-end justify-between gap-2 mb-2.5">
-        <div>${priceLines(x,d?"text-xl font-extrabold text-slate-400 line-through tracking-tight leading-tight":"text-xl font-extrabold text-slate-900 tracking-tight leading-tight")}
+        <div>${priceLines(x,d?"text-xl xl:text-lg font-extrabold text-slate-400 line-through tracking-tight leading-tight":"text-xl xl:text-lg font-extrabold text-slate-900 tracking-tight leading-tight")}
           ${x.fee?`<div class="text-xs font-semibold text-wabang-600 mt-0.5">관리비 ${esc(feeText(x.fee))}</div>`:""}</div>
         <div class="shrink-0 flex flex-col items-stretch gap-1.5">
           ${d?"":pickBtnHtml(x)}
@@ -433,8 +520,10 @@ function render(){
   shown=filtered();
   shown.forEach(x=>x.hit=CHAT_ON?scoreItem(x):[]);
   if(CHAT_ON)shown.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||(b.hit.length-a.hit.length));  // 조건이 많이 맞는 매물 먼저
+  sortShown();
   $("list").innerHTML=shown.map(card).join("");
-  {const act=shown.filter(x=>!x.done).length,dn=shown.length-act;$("countBadge").textContent=`매물 ${act}건`+(dn?` · 완료 ${dn}`:"")}
+  {const act=shown.filter(x=>!x.done).length,dn=shown.length-act;$("countBadge").textContent=`매물 ${act}건`+(dn?` · 완료 ${dn}`:"");$("pcCount").textContent=act+(dn?` · 완료 ${dn}`:"")}
+  drawDongs();
   $("empty").classList.toggle("hidden",!!shown.length);
   if(!shown.length){const none=!all.length;$("emptyTitle").textContent=none?"등록된 매물이 없습니다":"조건에 맞는 매물이 없습니다";
     $("emptyDesc").textContent=none?"잠시 후 다시 확인해 주세요.":"금액 범위나 선택하신 거래 유형을 조금 넓혀서 다시 검색해 보세요.";$("resetEmpty").classList.toggle("hidden",none);
@@ -444,6 +533,27 @@ function render(){
     else $("resetEmpty").textContent="모든 필터 초기화하기"}
   document.querySelectorAll("#list article").forEach(bindCard);
   summary();drawBanner();drawPickBar();drawRelax();
+}
+
+/* ---------- PC 화면: 정렬 ---------- */
+const feeNum=f=>{const t=String(f||"").replace(/,/g,""),m=t.match(/\d+(?:\.\d+)?/);if(!m)return 0;const n=parseFloat(m[0]);return /원/.test(t)&&!/만/.test(t)&&n>=1000?n/10000:n};
+const rentOf=x=>{const r=x.offers.filter(o=>RENT_DEALS.includes(o.deal)).map(o=>o.rent);return r.length?Math.min(...r):Infinity};   // 월세 없는 매물(전세·매매)은 뒤로
+const depOf=x=>Math.min(...x.offers.map(o=>o.dep||Infinity));
+function sortShown(){
+  if(SORT==="new")return;
+  const key=SORT==="rent"?rentOf:SORT==="dep"?depOf:x=>rentOf(x)+feeNum(x.fee);
+  const cmp=(a,b)=>a===b?0:(a<b?-1:1);
+  shown.sort((a,b)=>((a.done?1:0)-(b.done?1:0))||cmp(key(a),key(b)));
+}
+$("sortSel").onchange=e=>{SORT=e.target.value;render()};
+/* ---------- PC 화면: 동네 빠른 탭 (시트의 '지역' 마지막 단어 = 동 이름, 매물 많은 순) → 검색어로 거름 ---------- */
+function drawDongs(){
+  const box=$("dongTabs"),cnt={};
+  all.filter(x=>!x.done).forEach(x=>{const d=dong(x.area);if(d)cnt[d]=(cnt[d]||0)+1});
+  const list=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,7), cur=F.kw.trim();
+  const btn=(label,val,on)=>`<button type="button" data-dong="${esc(val)}" class="px-3.5 py-2 rounded-xl text-xs border transition-colors ${on?'font-extrabold bg-wabang-600 text-white border-wabang-600':'font-semibold bg-white text-slate-600 border-slate-200 hover:border-wabang-300 hover:text-wabang-600'}">${label}</button>`;
+  box.innerHTML=btn("전체 지역","",!cur)+list.map(d=>btn(`${esc(d)} <span class="opacity-60">${cnt[d]}</span>`,d,cur===d)).join("");
+  box.querySelectorAll("[data-dong]").forEach(b=>b.onclick=()=>{F.kw=b.dataset.dong;$("kw").value=F.kw;$("kwClear").classList.toggle("hidden",!F.kw);render()});
 }
 
 /* ---------- 0~2개일 때 완화 제안: "보증금 1,500만까지 → 3개 더" ---------- */
@@ -549,7 +659,7 @@ function openModal(x){
 function closeModal(){$("modal").classList.add("hidden");document.body.style.overflow=""}
 ["mBack","mX","mOk"].forEach(id=>$(id).onclick=closeModal);
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){closeModal();closeSend();if(typeof closeHelper==="function")closeHelper()}
+  if(e.key==="Escape"){closeModal();closeSend();closeCompare();if(typeof closeHelper==="function")closeHelper()}
   if($("modal").classList.contains("hidden"))return;
   if(e.key==="ArrowLeft"&&$("mPrev"))$("mPrev").click();
   if(e.key==="ArrowRight"&&$("mNext"))$("mNext").click();
@@ -567,6 +677,13 @@ function drawPet(){
   b.textContent=F.pet?(F.petLoose?"🐾 반려동물 가능·협의 보는 중 (누르면 해제)":"🐾 반려동물 가능만 보는 중 (누르면 해제)"):"🐾 반려동물 가능만 보기";
 }
 $("petToggle").onclick=()=>{F.pet=!F.pet;F.petLoose=false;drawPet();render()};
+/* PC 화면 전용: 거래완료 매물 숨기기 */
+function drawDone(){
+  const b=$("doneToggle"),on=!!F.hideDone;b.setAttribute("aria-pressed",on);
+  b.className="hidden lg:flex w-full items-center justify-between px-3.5 py-2.5 rounded-2xl border text-xs font-bold transition-all "+(on?"bg-slate-800 text-white border-slate-800":"bg-white text-slate-600 border-slate-200 hover:bg-slate-50");
+  b.innerHTML=`<span>거래완료 매물 숨기기</span><span class="w-4 h-4 rounded flex items-center justify-center text-[10px] ${on?'bg-white text-slate-800':'border border-slate-300 text-transparent'}">✓</span>`;
+}
+$("doneToggle").onclick=()=>{F.hideDone=!F.hideDone;drawDone();render()};
 function drawProp(){
   $("propBox").innerHTML=TYPES.map(t=>`<button type="button" data-p="${t}" class="shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${(t==="전체"?!F.types.size:F.types.has(t))?'bg-wabang-600 text-white font-bold shadow-sm shadow-sky-200':'bg-slate-100 text-slate-600 font-semibold hover:bg-wabang-50'}">${t}</button>`).join("");
   $("propBox").querySelectorAll("button").forEach(b=>b.onclick=()=>{const t=b.dataset.p;if(t==="전체")F.types.clear();else F.types.has(t)?F.types.delete(t):F.types.add(t);drawProp();render()});
@@ -593,11 +710,12 @@ $("kwClear").onclick=()=>{$("kw").value="";F.kw="";$("kwClear").classList.add("h
 $("priceToggle").onclick=()=>{const hid=$("pricePanel").classList.toggle("hidden");$("chev").style.transform=hid?"":"rotate(180deg)"};
 function resetAll(){
   CHAT_ON=false;
-  F.deals.clear();F.types.clear();Object.assign(F,{pet:false,petLoose:false,kw:"",depMin:null,depMax:null,rentMin:null,rentMax:null});
+  F.deals.clear();F.types.clear();Object.assign(F,{pet:false,petLoose:false,hideDone:false,kw:"",depMin:null,depMax:null,rentMin:null,rentMax:null});
   ["kw","depMin","depMax","rentMin","rentMax"].forEach(i=>$(i).value="");$("kwClear").classList.add("hidden");
-  syncRent();drawTx();drawProp();drawPet();drawQuick();render();
+  SORT="new";$("sortSel").value="new";
+  syncRent();drawTx();drawProp();drawPet();drawDone();drawQuick();render();
 }
-["resetPanel","resetEmpty"].forEach(id=>$(id).onclick=resetAll);   // 금액 패널·빈 화면: 필터만 초기화
+["resetPanel","resetEmpty","pcReset"].forEach(id=>$(id).onclick=resetAll);   // 금액 패널·빈 화면: 필터만 초기화
 $("resetTop").onclick=()=>resetEverything(true);                      // 상단 초기화: 담기·조건까지 처음 상태로
 $("homeBtn").onclick=e=>{e.preventDefault();closeModal();resetEverything(false);$("pricePanel").classList.add("hidden");$("chev").style.transform="";window.scrollTo({top:0,behavior:"smooth"})};
 
@@ -608,8 +726,11 @@ const SAMPLE=[
  {done:true,types:["아파트"],type:"아파트",area:"송파구 잠실동",fee:"15만",memo:"거래가 완료된 매물 예시입니다.",offers:[{deal:"매매",dep:150000,rent:0}],exc:"24",sup:"33",floor:"12/20층",dir:"남향",pet:"협의",photos:[]}];
 let rowCount=0;
 async function load(){
-  if(CONFIG.PHONE){const t="tel:"+CONFIG.PHONE.replace(/[^0-9+]/g,"");$("callBtn").href=t;$("callBtn").classList.remove("hidden");$("mCall").href=t;$("mCall").classList.remove("hidden")}
-  drawTx();drawProp();drawPet();drawQuick();syncRent();
+  if(CONFIG.PHONE){const t="tel:"+CONFIG.PHONE.replace(/[^0-9+]/g,"");$("callBtn").href=t;$("callBtn").classList.remove("hidden");$("mCall").href=t;$("mCall").classList.remove("hidden");$("pcPhone").href=t;$("pcPhoneTxt").textContent=CONFIG.PHONE}
+  else $("pcPhone").remove();
+  // PC 화면 상단·필터 칸 상담 버튼
+  $("pcInsta").href=CONFIG.INSTAGRAM_WEB_URL;$("pcKakao").href=$("pcKakao2").href=CONFIG.KAKAO_OPENCHAT_URL;
+  drawTx();drawProp();drawPet();drawDone();drawQuick();syncRent();
   try{
     if(CONFIG.CSV_URL.startsWith("http")){
       const res=await fetch(CONFIG.CSV_URL+(CONFIG.CSV_URL.includes("?")?"&":"?")+"t="+Date.now()); // t= 값으로 캐시 우회
@@ -711,6 +832,7 @@ function togglePick(id){
   document.querySelectorAll(`[data-pick="${CSS.escape(id)}"]`).forEach(el=>el.onclick=e=>{e.stopPropagation();togglePick(id)});
   drawPickBar();drawModalPick();
   if(!$("sendModal").classList.contains("hidden"))drawSend();
+  if(!$("cmpModal").classList.contains("hidden")){if(picks.size)drawCompare();else closeCompare()}
   toast(picks.has(id)?"매물을 담았어요! 아래 버튼으로 중개사에게 보낼 수 있어요.":"담기를 취소했어요.");
 }
 function drawPickBar(){
@@ -718,6 +840,7 @@ function drawPickBar(){
   const barOn=!!(n||CHAT);$("pickBar").classList.toggle("hidden",!barOn);
   $("helperWrap").style.bottom=`calc(env(safe-area-inset-bottom) + ${barOn?84:16}px)`;
   $("helperLabel").textContent=CHAT?"조건 수정":"와방 도우미";
+  $("cmpBtn").className=n>=2?"hidden lg:flex shrink-0 items-center gap-1.5 px-4 rounded-2xl bg-white border border-slate-200 text-slate-800 text-sm font-extrabold shadow-xl shadow-slate-900/10 hover:border-wabang-400 hover:text-wabang-600 transition":"hidden";
 }
 function drawModalPick(){
   const b=$("mPick");if(!curItem||curItem.done){b.classList.add("hidden");return}
@@ -726,6 +849,32 @@ function drawModalPick(){
   b.innerHTML=`<i class="${on?'ph-fill':'ph-bold'} ph-heart"></i> ${on?'담음':'이 매물 담기'}`;
 }
 $("mPick").onclick=()=>curItem&&togglePick(curItem.id);
+
+/* ---------- PC 화면: 담은 매물 나란히 비교 ---------- */
+function drawCompare(){
+  const items=pickedItems(), td="p-3 align-top border-b border-slate-100";
+  const row=(label,f,hl)=>`<tr${hl?' class="bg-wabang-50/60"':''}><th class="${td} w-28 text-left text-xs font-bold ${hl?'text-wabang-600':'text-slate-500 bg-slate-50'}">${label}</th>${items.map(x=>`<td class="${td} text-xs text-slate-700">${f(x)}</td>`).join("")}</tr>`;
+  $("cBody").innerHTML=`<table class="w-full border-collapse min-w-[640px]" style="table-layout:fixed"><thead><tr><th class="w-28"></th>${items.map(x=>`<th class="p-3 align-top text-left">
+      <div class="relative rounded-xl overflow-hidden aspect-[16/10] mb-2 bg-wabang-50 cursor-pointer" data-copen="${esc(x.id)}">${x.photos[0]?`<img src="${esc(x.photos[0])}" referrerpolicy="no-referrer" class="w-full h-full object-cover" onerror="this.remove()">`:""}
+        <span class="absolute top-2 left-2 bg-slate-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded">#${esc(x.id)}</span>
+        <button type="button" data-unpick="${esc(x.id)}" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 text-slate-500 hover:text-rose-500 flex items-center justify-center" aria-label="빼기"><i class="ph-bold ph-x text-xs"></i></button></div>
+      <div class="text-xs font-bold text-wabang-600">${esc(x.area)} · ${esc(x.type)}</div></th>`).join("")}</tr></thead><tbody>
+    ${row("가격",x=>`<div class="text-sm font-extrabold text-slate-900 space-y-0.5">${priceLines(x,"")}</div>`)}
+    ${row("관리비",x=>esc(x.fee?feeText(x.fee):"-"))}
+    ${row("월 고정비",x=>{const r=rentOf(x);return r===Infinity?'<span class="text-slate-400">월세 매물 아님</span>':`<b class="text-sm text-wabang-600">약 ${(Math.round((r+feeNum(x.fee))*10)/10).toLocaleString()}만원</b> <span class="text-[11px] text-slate-400">(월세+관리비)</span>`},true)}
+    ${row("평수",x=>esc(areaText(x)||"-").replace(/\n/g,"<br>"))}
+    ${row("층수 / 방향",x=>esc([floorText(x.floor),x.dir].filter(Boolean).join(" · ")||"-"))}
+    ${row("반려동물",x=>x.pet?petBadge(x):"-")}
+    ${row("특징",x=>`<span class="leading-relaxed">${esc(x.memo||"-")}</span>`)}
+    ${row("상세",x=>`<button type="button" data-copen="${esc(x.id)}" class="w-full py-2 rounded-xl bg-wabang-600 hover:bg-wabang-dark text-white text-xs font-bold">사진·상세 보기</button>`)}
+  </tbody></table>`;
+  $("cBody").querySelectorAll("[data-unpick]").forEach(b=>b.onclick=e=>{e.stopPropagation();togglePick(b.dataset.unpick)});
+  $("cBody").querySelectorAll("[data-copen]").forEach(b=>b.onclick=()=>{const x=all.find(y=>y.id===b.dataset.copen);closeCompare();if(x)openModal(x)});
+}
+function openCompare(){if(!picks.size)return;drawCompare();$("cmpModal").classList.remove("hidden");$("cmpModal").classList.add("flex");document.body.style.overflow="hidden"}
+function closeCompare(){$("cmpModal").classList.add("hidden");$("cmpModal").classList.remove("flex");if($("modal").classList.contains("hidden")&&$("sendModal").classList.contains("hidden"))document.body.style.overflow=""}
+$("cmpBtn").onclick=openCompare;["cBack","cX"].forEach(id=>$(id).onclick=closeCompare);
+$("cSend").onclick=()=>{closeCompare();openSend()};
 
 const itemLink=x=>location.origin+location.pathname+"?item="+encodeURIComponent(x.id);
 let VIEW="";   // 도우미에서 건너뛴 경우 보내기 창에서 고르는 '방 볼 수 있는 날'
