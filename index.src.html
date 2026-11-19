@@ -43,6 +43,10 @@ colors:{wabang:{50:'#F0F9FF',100:'#E0F2FE',200:'#BAE6FD',300:'#7DD3FC',400:'#38B
   .carousel-track,#mMedia{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
     .carousel-slide::after{content:"";position:absolute;inset:0;z-index:2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='170'%3E%3Cg transform='rotate(-24 130 85)' font-family='sans-serif' font-size='17' font-weight='700' text-anchor='middle'%3E%3Ctext x='131' y='86' fill='rgba(0,0,0,.22)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3Ctext x='130' y='85' fill='rgba(255,255,255,.55)'%3E%EC%99%80%EB%B0%A9 %C2%B7 010-4445-6432%3C/text%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat}
   @media print{body{display:none!important}}
+  /* 한글이 단어 중간에서 끊기지 않게 (아주 긴 글자는 칸을 넘치면 끊음) */
+  body{word-break:keep-all;overflow-wrap:anywhere}
+  /* 휴대폰: 매물 종류 버튼이 옆으로 더 있다는 표시 (오른쪽 끝 흐리게) */
+  @media (max-width:1023px){#propBox{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:24px}}
   button:focus-visible,input:focus-visible{outline:2px solid #0284C7;outline-offset:2px}
   /* 기기 기본 한글 글꼴: 아이폰·맥(애플 SD 고딕) / 갤럭시(삼성 기본·Noto) / 윈도우(맑은 고딕) */
   html,body,button,input,textarea,select{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","맑은 고딕","Noto Sans KR",Roboto,"Helvetica Neue","Segoe UI",sans-serif}
@@ -159,11 +163,11 @@ const CONFIG = {
             <button type="button" data-clear="dep" class="text-[11px] text-slate-500 underline">지우기</button>
           </div>
           <div class="flex items-center gap-2 mb-2">
-            <input type="number" inputmode="numeric" id="depMin" placeholder="최소 (예: 100)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
+            <input type="number" inputmode="numeric" id="depMin" placeholder="최소" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
             <span class="text-slate-400 font-bold">~</span>
-            <input type="number" inputmode="numeric" id="depMax" placeholder="최대 (예: 3000)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
+            <input type="number" inputmode="numeric" id="depMax" placeholder="최대" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
           </div>
-          <div id="depQuick" class="flex flex-wrap gap-1"></div>
+          <div id="depQuick" class="flex flex-wrap gap-1 lg:grid lg:grid-cols-2"></div>
         </div>
         <hr class="border-slate-200/70">
         <div id="rentBox">
@@ -172,11 +176,11 @@ const CONFIG = {
             <button type="button" data-clear="rent" class="text-[11px] text-slate-500 underline">지우기</button>
           </div>
           <div class="flex items-center gap-2 mb-2">
-            <input type="number" inputmode="numeric" id="rentMin" placeholder="최소 (예: 100)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
+            <input type="number" inputmode="numeric" id="rentMin" placeholder="최소" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
             <span class="text-slate-400 font-bold">~</span>
-            <input type="number" inputmode="numeric" id="rentMax" placeholder="최대 (예: 400)" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
+            <input type="number" inputmode="numeric" id="rentMax" placeholder="최대" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-wabang-400">
           </div>
-          <div id="rentQuick" class="flex flex-wrap gap-1"></div>
+          <div id="rentQuick" class="flex flex-wrap gap-1 lg:grid lg:grid-cols-3"></div>
         </div>
         <div class="flex justify-end pt-1">
           <button type="button" id="resetPanel" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100"><i class="ph ph-arrow-counter-clockwise"></i> 전체 조건 초기화</button>
@@ -229,12 +233,12 @@ const CONFIG = {
   <footer class="text-center py-8 px-4 text-xs text-slate-500 border-t border-wabang-100/80 mt-6 lg:max-w-[1600px] lg:mx-auto lg:mt-10">
     <p class="font-bold text-slate-600 mb-1">와방 · 공인중개사 이하늘</p>
     <p>본 페이지는 안내 링크를 전달받으신 고객님 전용 매물 카탈로그입니다.</p>
-    <p class="mt-2">잇다공인중개사무소</p>
-       <p>주소:부산광역시 부산진구 전포대로 229, 경원빌딩 4층</p>
-       <p>Tel: 010-4445-6432 공인중개사 이하늘</p>
-       <p>Tel: 051) 715-2220</p>
-       <p>등록번호: 제26230-2024-00093</p>
-       <p>소장: 정한나</p>
+    <div class="mt-3 space-y-0.5 leading-relaxed">
+       <p class="font-semibold text-slate-600">잇다공인중개사무소</p>
+       <p>주소: 부산광역시 부산진구 전포대로 229, 경원빌딩 4층</p>
+       <p>연락처: 010-4445-6432 (공인중개사 이하늘) · 051-715-2220</p>
+       <p>등록번호: 제26230-2024-00093 · 소장: 정한나</p>
+    </div>
   </footer>
 </div>
 
@@ -251,12 +255,12 @@ const CONFIG = {
       <div id="mInfo" class="p-5 space-y-5">
         <div><div id="mPrice" class="text-2xl font-extrabold text-slate-900 tracking-tight leading-snug"></div><div id="mFee" class="text-xs font-semibold text-wabang-600 mt-1"></div><div id="mReg" class="text-[11px] text-slate-400 mt-1"></div></div>
         <div id="mPet"></div>
-        <div class="grid grid-cols-3 gap-2.5">
-          <div class="p-3 rounded-2xl bg-wabang-50/80 border border-wabang-100 text-center"><div class="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-center gap-1"><i class="ph-fill ph-ruler text-wabang-500"></i> 평수</div><div id="mArea" class="text-sm font-extrabold text-slate-800 leading-snug">-</div></div>
-          <div class="p-3 rounded-2xl bg-wabang-50/80 border border-wabang-100 text-center"><div class="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-center gap-1"><i class="ph-fill ph-stairs text-wabang-500"></i> 층수</div><div id="mFloor" class="text-sm font-extrabold text-slate-800">-</div></div>
-          <div class="p-3 rounded-2xl bg-wabang-50/80 border border-wabang-100 text-center"><div class="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-center gap-1"><i class="ph-fill ph-compass text-wabang-500"></i> 방향</div><div id="mDir" class="text-sm font-extrabold text-slate-800">-</div></div>
+        <div id="mSpecs" class="flex gap-2.5">
+          <div id="mAreaBox" class="flex-1 min-w-0 p-3 rounded-2xl bg-wabang-50/80 border border-wabang-100 text-center"><div class="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-center gap-1"><i class="ph-fill ph-ruler text-wabang-500"></i> 평수</div><div id="mArea" class="text-sm font-extrabold text-slate-800 leading-snug">-</div></div>
+          <div id="mFloorBox" class="flex-1 min-w-0 p-3 rounded-2xl bg-wabang-50/80 border border-wabang-100 text-center"><div class="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-center gap-1"><i class="ph-fill ph-stairs text-wabang-500"></i> 층수</div><div id="mFloor" class="text-sm font-extrabold text-slate-800">-</div></div>
+          <div id="mDirBox" class="flex-1 min-w-0 p-3 rounded-2xl bg-wabang-50/80 border border-wabang-100 text-center"><div class="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-center gap-1"><i class="ph-fill ph-compass text-wabang-500"></i> 방향</div><div id="mDir" class="text-sm font-extrabold text-slate-800">-</div></div>
         </div>
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100"><h4 class="text-xs font-bold text-slate-500 mb-1.5">매물 특징 및 상세 안내</h4><p id="mMemo" class="text-sm text-slate-700 leading-relaxed whitespace-pre-line"></p></div>
+        <div id="mMemoBox" class="p-4 rounded-2xl bg-slate-50 border border-slate-100"><h4 class="text-xs font-bold text-slate-500 mb-1.5">매물 특징 및 상세 안내</h4><p id="mMemo" class="text-sm text-slate-700 leading-relaxed whitespace-pre-line"></p></div>
       </div>
     </div>
     <div id="mFoot" class="p-4 border-t border-slate-100 bg-white flex gap-2">
@@ -393,7 +397,7 @@ const DEAL_LIST=["월세","전세","매매","단기"], RENT_DEALS=["월세","단
 const TYPES=["전체","원룸","투룸","오피스텔","쓰리룸","아파트","상가"];
 const DEP_QUICK=[["~500만",null,500],["500~1000",500,1000],["1000~3000",1000,3000],["3000만~",3000,null]];
 const RENT_QUICK=[["~50만",null,50],["50~100만",50,100],["100~400만",100,400]];
-const QBTN="px-2 py-1 text-[11px] font-medium bg-white border border-slate-200 rounded-lg text-slate-600 hover:border-wabang-400 hover:text-wabang-600";
+const QBTN="px-2 py-1 text-[11px] font-medium whitespace-nowrap lg:px-1 bg-white border border-slate-200 rounded-lg text-slate-600 hover:border-wabang-400 hover:text-wabang-600";
 
 let all=[], shown=[];
 const F={deals:new Set(),types:new Set(),kw:"",pet:false,hideDone:false,depMin:null,depMax:null,rentMin:null,rentMax:null};
@@ -665,7 +669,10 @@ function openModal(x){
   $("mReg").textContent=regText(x);
   $("mArea").style.whiteSpace="pre-line";$("mArea").textContent=areaText(x)||"-";
   $("mFloor").textContent=floorText(x.floor)||"-"; $("mDir").textContent=x.dir||"-";
-  $("mMemo").textContent=x.memo||"등록된 상세 메모가 없습니다.";
+  // 값이 없는 칸은 '-' 대신 아예 숨김 (셋 다 없으면 줄 전체 숨김)
+  const sp={mAreaBox:areaText(x),mFloorBox:x.floor,mDirBox:x.dir};Object.keys(sp).forEach(k=>$(k).classList.toggle("hidden",!sp[k]));
+  $("mSpecs").classList.toggle("hidden",!Object.values(sp).some(Boolean));
+  $("mMemo").textContent=x.memo||"";$("mMemoBox").classList.toggle("hidden",!x.memo);
   const n=x.photos.length;
   if(n){
     const arrow=(cls,side,ic,label)=>`<button type="button" id="${cls}" class="absolute ${side} top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-slate-800 flex items-center justify-center shadow-md z-10" aria-label="${label}"><i class="ph-bold ${ic} text-base block ${ic==="ph-caret-left"?"translate-x-[0.5px]":"-translate-x-[0.5px]"}"></i></button>`;
@@ -1103,7 +1110,9 @@ window.addEventListener("message",e=>{
   if(d.type==="close")closeHelper();
 });
 // 첫 방문 손님에게만 말풍선으로 도우미 안내
-setTimeout(()=>{if(!CHAT&&!LS.get("wabang_helper_seen")&&$("helperSheet").classList.contains("hidden"))$("helperBubble").classList.remove("hidden")},1500);
+setTimeout(()=>{if(!CHAT&&!LS.get("wabang_helper_seen")&&$("helperSheet").classList.contains("hidden")){$("helperBubble").classList.remove("hidden");
+  const bye=()=>{if(!$("helperBubble").classList.contains("hidden"))$("helperBubble").classList.add("hidden");removeEventListener("scroll",onSc)};
+  const y0=scrollY,onSc=()=>{if(Math.abs(scrollY-y0)>300)bye()};addEventListener("scroll",onSc,{passive:true});setTimeout(bye,10000)}},1500);
 
 /* 처음 상태로: 필터 + 담은 매물 + 챗봇 조건 + 도우미 대화 */
 function clearPicks(){picks.clear();savePicks();VIEW="";drawPickBar()}
