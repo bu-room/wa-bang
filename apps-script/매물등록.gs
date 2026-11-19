@@ -46,7 +46,8 @@ function doPost(e) {
   if (authErr) return json_({ ok: false, auth: true, error: authErr });
 
   try {
-    if (d.action === "check") return json_({ ok: true, regions: topRegions_(), site: SITE_URL });
+    // 비밀번호 확인 + 동네 버튼 + 수정용 매물 목록을 한 번에 (등록 페이지가 서버를 두 번 기다리지 않게)
+    if (d.action === "check") return json_({ ok: true, regions: topRegions_(), site: SITE_URL, items: listListings_().items });
     if (d.action === "photo") return json_(savePhoto_(d));
     if (d.action === "save")  return json_(saveListing_(d));
     if (d.action === "list")  return json_(listListings_());
