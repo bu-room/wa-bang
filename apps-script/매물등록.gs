@@ -95,16 +95,38 @@ function savePhoto_(d) {
   // JPEG 머리글(FF D8) 확인: 등록 페이지가 항상 JPEG로 바꿔서 보냄
   if (!(bytes[0] === -1 && bytes[1] === -40)) return { ok: false, error: "사진 형식이 올바르지 않아요." };
 
-  const today = Utilities.formatDate(new Date(), "Asia/Seoul", "yyyyMMdd");
-  const cntKey = "PHOTO_CNT_" + today;
-  const cnt = Number(PROPS.getProperty(cntKey) || 0);
-  if (cnt >= DAILY_PHOTO_LIMIT) return { ok: false, error: "오늘 올릴 수 있는 사진 수를 넘었어요." };
-  PROPS.setProperty(cntKey, String(cnt + 1));
+  // 중복 방지: 같은 사진(내용 지문 같음)이 6시간 안에 다시 오면 새로 만들지 않고 전에 만든 파일을 돌려줌
+  //  (서버는 저장했는데 응답이 중간에 끊겨 등록 페이지가 다시 보낸 경우 → 드라이브에 같은 사진이 쌓이던 문제)
+  const fp = "PH_" + digest_(bytes);
+  const cache = CacheService.getScriptCache();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const prev = cache.get(fp);
+    if (prev) {
+      try { const f = DriveApp.getFileById(prev); if (!f.isTrashed()) return { ok: true, id: prev, dup: true }; } catch (e) {}
+    }
 
-  const name = today + "_" + Utilities.getUuid().slice(0, 8) + ".jpg";
-  const file = photoFolder_().createFile(Utilities.newBlob(bytes, "image/jpeg", name));
-  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  return { ok: true, id: file.getId() };
+    const today = Utilities.formatDate(new Date(), "Asia/Seoul", "yyyyMMdd");
+    const cntKey = "PHOTO_CNT_" + today;
+    const cnt = Number(PROPS.getProperty(cntKey) || 0);
+    if (cnt >= DAILY_PHOTO_LIMIT) return { ok: false, error: "오늘 올릴 수 있는 사진 수를 넘었어요." };
+    PROPS.setProperty(cntKey, String(cnt + 1));
+
+    const name = today + "_" + Utilities.getUuid().slice(0, 8) + ".jpg";
+    const file = photoFolder_().createFile(Utilities.newBlob(bytes, "image/jpeg", name));
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    cache.put(fp, file.getId(), 21600);
+    return { ok: true, id: file.getId() };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* 내용 지문 (같은 내용이면 같은 값) */
+function digest_(v) {
+  const raw = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, v);
+  return Utilities.base64EncodeWebSafe(raw).replace(/=+$/, "");
 }
 
 function photoFolder_() {
@@ -161,9 +183,17 @@ function saveListing_(d) {
   if (bad) return { ok: false, error: bad };
   const photoIds = photoIds_(d);
 
+  // 중복 방지: 같은 내용(매물 + 사진)이 30분 안에 다시 오면 새 줄을 만들지 않고 전에 받은 매물번호를 돌려줌
+  //  ('등록' 응답이 끊겨 다시 누르거나, 두 번 눌렀을 때)
+  const sameKey = "SV_" + digest_(JSON.stringify([L, photoIds]));
+  const cache = CacheService.getScriptCache();
+
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
+    const prevNo = cache.get(sameKey);
+    if (prevNo) return { ok: true, no: Number(prevNo), site: SITE_URL, dup: true };
+
     const sh = listingSheet_();
     const H = ensureCols_(sh);
     const no = nextNo_(sh, H);
@@ -182,6 +212,7 @@ function saveListing_(d) {
     // (위 줄 서식을 복사하면 표(Table) 시트에서 빈칸으로 보이는 경우가 있어서 직접 지정)
     if (H["타임스탬프"] != null) sh.getRange(r, H["타임스탬프"] + 1).setNumberFormat("yyyy. M. d am/pm h:mm:ss");
     PROPS.setProperty("LAST_NO", String(no));
+    cache.put(sameKey, String(no), 1800);
     return { ok: true, no: no, site: SITE_URL };
   } finally {
     lock.releaseLock();
@@ -480,6 +511,33 @@ function 설치하기() {
   if (!PROPS.getProperty("REG_PW")) PROPS.setProperty("REG_PW", newPw_());
   Logger.log("🔑 등록 비밀번호: " + PROPS.getProperty("REG_PW") + "  (등록 페이지에 처음 한 번 입력)");
   Logger.log("다음: 배포 → 새 배포 → 웹 앱(실행: 나, 액세스: 모든 사용자) → 주소를 register/index.html CONFIG.REGISTER_URL 에");
+}
+
+/* 매물 어디에도 안 쓰인 사진(등록 실패·중복 업로드로 남은 것)을 휴지통으로
+ *  - 1시간 안에 올라온 사진은 등록 중일 수 있어 건드리지 않음
+ *  - 휴지통은 30일 동안 되살릴 수 있음
+ *  - 먼저 '안쓰는사진_확인'으로 개수를 보고 → '안쓰는사진_정리' 실행 */
+function 안쓰는사진_확인() { orphanPhotos_(false); }
+function 안쓰는사진_정리() { orphanPhotos_(true); }
+function orphanPhotos_(doTrash) {
+  const sh = listingSheet_();
+  const H = ensureCols_(sh);
+  const used = {};
+  if (sh.getLastRow() > 1) {
+    sh.getRange(2, H["사진"] + 1, sh.getLastRow() - 1, 1).getValues()
+      .forEach(r => idsFromCell_(r[0]).forEach(id => used[id] = true));
+  }
+  const limit = Date.now() - 60 * 60 * 1000;
+  const it = photoFolder_().getFiles();
+  let n = 0, kept = 0;
+  while (it.hasNext()) {
+    const f = it.next();
+    if (used[f.getId()] || f.getDateCreated().getTime() > limit) { kept++; continue; }
+    n++;
+    Logger.log((doTrash ? "🗑 휴지통으로: " : "· 안 쓰는 사진: ") + f.getName() + "  " + f.getDateCreated());
+    if (doTrash) f.setTrashed(true);
+  }
+  Logger.log((doTrash ? "✅ 휴지통으로 옮김 " : "🔎 안 쓰는 사진 ") + n + "장 / 매물에 쓰는 사진 " + kept + "장");
 }
 
 function 비밀번호_바꾸기() {
