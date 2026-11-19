@@ -16,13 +16,14 @@
  *  - 등록 페이지에서 줄여서 보낸 사진(장당 약 200KB)을 드라이브 '와방 매물사진' 폴더에 저장
  *  - 매물 시트에 한 줄 추가 (매물번호 자동, 상태 '진행중' 자동)
  *  - (구글폼을 계속 써도) 폼 제출 시 매물번호·상태 자동 입력
+ *  - 등록한 매물 수정 (사진 빼기·추가·순서, 금액·글자, 상태 진행중/거래완료/숨김)
  *  - 비밀번호 5번 틀리면 10분 잠금
  * ============================================================================= */
 
 const SHEET_ID          = "";            // 예: "1AbC...xyz" (시트 주소 /d/ 와 /edit 사이)
 const LISTING_SHEET_GID = 2111395519;    // 손님에게 공개되는 매물 탭 (CSV 주소의 gid= 값)
 const PHOTO_FOLDER_NAME = "와방 매물사진";
-const SITE_URL          = "https://skylee-lang.github.io/wa-bang/";
+const SITE_URL          = "https://bu-room.github.io/wa-bang/";
 
 const PROPS = PropertiesService.getScriptProperties();
 const COLS = ["타임스탬프", "거래유형", "매물종류", "지역", "보증금", "월세", "전세금", "매매가", "관리비",
@@ -48,6 +49,9 @@ function doPost(e) {
     if (d.action === "check") return json_({ ok: true, regions: topRegions_(), site: SITE_URL });
     if (d.action === "photo") return json_(savePhoto_(d));
     if (d.action === "save")  return json_(saveListing_(d));
+    if (d.action === "list")  return json_(listListings_());
+    if (d.action === "get")   return json_(getListing_(d.no));
+    if (d.action === "update") return json_(updateListing_(d));
     return json_({ ok: false, error: "알 수 없는 요청이에요." });
   } catch (err) {
     return json_({ ok: false, error: String((err && err.message) || err).slice(0, 300) });
@@ -99,19 +103,49 @@ function photoFolder_() {
 }
 
 /* ------------------------------------------------------------ 매물 저장 ---- */
+/* 입력값 확인 → 문제 있으면 오류 문구, 없으면 "" */
+function dealsOf_(L) { return (Array.isArray(L.deals) ? L.deals : []).filter(x => DEALS.indexOf(x) >= 0); }
+function typeOf_(L) { return Array.isArray(L.type) ? L.type.map(x => txt_(x)).filter(Boolean).join(", ") : txt_(L.type); }
+function validate_(L) {
+  const deals = dealsOf_(L);
+  if (!deals.length) return "거래유형을 골라 주세요.";
+  if (!typeOf_(L)) return "매물종류를 골라 주세요.";
+  if (!txt_(L.area)) return "지역을 입력해 주세요.";
+  const needRent = deals.some(x => x === "월세" || x === "단기");
+  if (needRent && !num_(L.rent) && !num_(L.dep)) return "보증금이나 월세를 입력해 주세요.";
+  if (deals.indexOf("전세") >= 0 && !num_(L.jeon)) return "전세금을 입력해 주세요.";
+  if (deals.indexOf("매매") >= 0 && !num_(L.sale)) return "매매가를 입력해 주세요.";
+  return "";
+}
+function photoIds_(d) {
+  return (Array.isArray(d.photos) ? d.photos : []).map(String).filter(x => /^[\w-]{20,}$/.test(x)).slice(0, 10);
+}
+/* 매물 칸 값 (등록·수정 공통). 타임스탬프·매물번호는 여기서 안 건드림 */
+function listingValues_(L, ids) {
+  return {
+    "거래유형": dealsOf_(L).join(", "),
+    "매물종류": typeOf_(L),
+    "지역": txt_(L.area),
+    "보증금": num_(L.dep),
+    "월세": num_(L.rent),
+    "전세금": num_(L.jeon),
+    "매매가": num_(L.sale),
+    "관리비": fee_(L.fee),
+    "전용면적": num_(L.exc),
+    "공급면적": num_(L.sup),
+    "층수": L.floor ? "'" + txt_(L.floor) : "",      // '3/5' 가 날짜로 바뀌지 않게 글자로 저장
+    "방향": txt_(L.dir),
+    "반려동물": txt_(L.pet),
+    "한줄특징": txt_(L.memo, 300),
+    "사진": ids.map(id => "https://drive.google.com/open?id=" + id).join(", ")
+  };
+}
+
 function saveListing_(d) {
   const L = d.listing || {};
-  const deals = (Array.isArray(L.deals) ? L.deals : []).filter(x => DEALS.indexOf(x) >= 0);
-  if (!deals.length) return { ok: false, error: "거래유형을 골라 주세요." };
-  if (!txt_(L.type)) return { ok: false, error: "매물종류를 골라 주세요." };
-  if (!txt_(L.area)) return { ok: false, error: "지역을 입력해 주세요." };
-  const needRent = deals.some(x => x === "월세" || x === "단기");
-  if (needRent && !num_(L.rent) && !num_(L.dep)) return { ok: false, error: "보증금이나 월세를 입력해 주세요." };
-  if (deals.indexOf("전세") >= 0 && !num_(L.jeon)) return { ok: false, error: "전세금을 입력해 주세요." };
-  if (deals.indexOf("매매") >= 0 && !num_(L.sale)) return { ok: false, error: "매매가를 입력해 주세요." };
-
-  const photoIds = (Array.isArray(d.photos) ? d.photos : [])
-    .map(String).filter(x => /^[\w-]{20,}$/.test(x)).slice(0, 10);
+  const bad = validate_(L);
+  if (bad) return { ok: false, error: bad };
+  const photoIds = photoIds_(d);
 
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -123,21 +157,8 @@ function saveListing_(d) {
     const put = (name, v) => { if (H[name] != null) row[H[name]] = v; };
 
     put("타임스탬프", new Date());
-    put("거래유형", deals.join(", "));
-    put("매물종류", txt_(L.type));
-    put("지역", txt_(L.area));
-    put("보증금", num_(L.dep));
-    put("월세", num_(L.rent));
-    put("전세금", num_(L.jeon));
-    put("매매가", num_(L.sale));
-    put("관리비", num_(L.fee));
-    put("전용면적", num_(L.exc));
-    put("공급면적", num_(L.sup));
-    put("층수", L.floor ? "'" + txt_(L.floor) : "");      // '3/5' 가 날짜로 바뀌지 않게 글자로 저장
-    put("방향", txt_(L.dir));
-    put("반려동물", txt_(L.pet));
-    put("한줄특징", txt_(L.memo, 300));
-    put("사진", photoIds.map(id => "https://drive.google.com/open?id=" + id).join(", "));
+    const V = listingValues_(L, photoIds);
+    Object.keys(V).forEach(k => put(k, V[k]));
     put("상태", "진행중");
     put("매물번호", no);
 
@@ -148,6 +169,95 @@ function saveListing_(d) {
     if (H["타임스탬프"] != null) sh.getRange(r, H["타임스탬프"] + 1).setNumberFormat("yyyy. M. d am/pm h:mm:ss");
     PROPS.setProperty("LAST_NO", String(no));
     return { ok: true, no: no, site: SITE_URL };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* ------------------------------------------------------------ 매물 수정 ---- */
+const STATUS_LIST = ["진행중", "거래완료", "숨김"];   // '숨김' 등 그 외 값은 손님 화면에 안 보임
+
+/* 사진 칸("주소, 주소") → 드라이브 파일 ID 목록 */
+function idsFromCell_(v) {
+  return String(v || "").split(",").map(s => s.trim()).filter(Boolean).map(u => {
+    const m = u.match(/[?&]id=([\w-]+)/) || u.match(/\/d\/([\w-]+)/);
+    return m ? m[1] : "";
+  }).filter(Boolean);
+}
+
+/* 매물번호로 시트 줄 번호(1부터) 찾기 */
+function findRow_(sh, H, no) {
+  const last = sh.getLastRow();
+  if (last < 2) return 0;
+  const vals = sh.getRange(2, H["매물번호"] + 1, last - 1, 1).getValues();
+  for (let i = vals.length - 1; i >= 0; i--) if (String(vals[i][0]).trim() === String(no).trim()) return i + 2;
+  return 0;
+}
+
+/* 한 줄 → 수정 화면에 넣을 값 */
+function rowToListing_(H, vals, disp) {
+  const g = name => H[name] == null ? "" : vals[H[name]];
+  const t = name => H[name] == null ? "" : String(disp[H[name]] || "").trim();
+  const n = name => { const v = g(name); return typeof v === "number" ? String(v) : String(v || "").replace(/,/g, "").trim(); };
+  const pet = t("반려동물");
+  return {
+    no: t("매물번호"),
+    deals: DEALS.filter(x => t("거래유형").indexOf(x) >= 0),
+    type: t("매물종류").split(",").map(s => s.trim()).filter(Boolean),
+    area: t("지역"), dep: n("보증금"), rent: n("월세"), jeon: n("전세금"), sale: n("매매가"),
+    fee: t("관리비").replace(/,/g, ""), exc: n("전용면적"), sup: n("공급면적"),
+    floor: t("층수"), dir: t("방향"),
+    pet: pet.indexOf("불가") >= 0 ? "불가" : pet.indexOf("협의") >= 0 ? "협의" : pet.indexOf("가능") >= 0 ? "가능" : "",
+    memo: t("한줄특징"), status: t("상태"),
+    photos: idsFromCell_(t("사진")),
+    reg: t("타임스탬프")
+  };
+}
+
+/* 수정할 매물 고르기 목록 (최근 등록이 위) */
+function listListings_() {
+  const sh = listingSheet_();
+  const H = ensureCols_(sh);
+  const last = sh.getLastRow();
+  if (last < 2) return { ok: true, items: [] };
+  const rng = sh.getRange(2, 1, last - 1, sh.getLastColumn());
+  const vals = rng.getValues(), disp = rng.getDisplayValues();
+  const items = [];
+  for (let i = vals.length - 1; i >= 0 && items.length < 300; i--) {
+    const x = rowToListing_(H, vals[i], disp[i]);
+    if (!x.no) continue;
+    items.push({ no: x.no, deals: x.deals, type: x.type.join(", "), area: x.area, dep: x.dep, rent: x.rent, jeon: x.jeon, sale: x.sale,
+                 status: x.status, photo: x.photos[0] || "", memo: x.memo.slice(0, 40) });
+  }
+  return { ok: true, items: items };
+}
+
+function getListing_(no) {
+  const sh = listingSheet_();
+  const H = ensureCols_(sh);
+  const r = findRow_(sh, H, no);
+  if (!r) return { ok: false, error: "매물 #" + no + " 을(를) 시트에서 못 찾았어요." };
+  const rng = sh.getRange(r, 1, 1, sh.getLastColumn());
+  return { ok: true, listing: rowToListing_(H, rng.getValues()[0], rng.getDisplayValues()[0]) };
+}
+
+function updateListing_(d) {
+  const L = d.listing || {};
+  const bad = validate_(L);
+  if (bad) return { ok: false, error: bad };
+  const ids = photoIds_(d);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = listingSheet_();
+    const H = ensureCols_(sh);
+    const r = findRow_(sh, H, d.no);
+    if (!r) return { ok: false, error: "매물 #" + d.no + " 을(를) 시트에서 못 찾았어요. (시트에서 지워졌을 수 있어요)" };
+    const V = listingValues_(L, ids);
+    if (STATUS_LIST.indexOf(L.status) >= 0) V["상태"] = L.status;
+    // 바꿀 칸만 하나씩 씀 → 타임스탬프·매물번호·그 밖의 열(수식 등)은 그대로
+    Object.keys(V).forEach(k => { if (H[k] != null) sh.getRange(r, H[k] + 1).setValue(V[k]); });
+    return { ok: true, no: d.no, site: SITE_URL };
   } finally {
     lock.releaseLock();
   }
@@ -269,6 +379,12 @@ function newPw_() {
 /* ---------------------------------------------------------------- 도구 ---- */
 function txt_(v, max) {
   return String(v == null ? "" : v).trim().replace(/^[=+\-@]/, "'$&").slice(0, max || 60);
+}
+/* 관리비: 숫자만 쓰면 숫자로, '8만 (인터넷 포함)' 처럼 쓰면 글자 그대로 */
+function fee_(v) {
+  const s = String(v == null ? "" : v).trim().replace(/,/g, "");
+  if (!s) return "";
+  return /^\d+(\.\d+)?$/.test(s) ? num_(s) : txt_(s, 40);
 }
 function num_(v) {
   const n = parseFloat(String(v == null ? "" : v).replace(/,/g, "").replace(/[^0-9.]/g, ""));
