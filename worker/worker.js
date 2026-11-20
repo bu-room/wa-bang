@@ -35,6 +35,8 @@ const LIMIT = {
   tItem:   [120, SESSION_MIN * 60]   // 입장권 하나로 상세 120번
 };
 
+const AI_BOT = /GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-User|Claude-SearchBot|anthropic-ai|Google-Extended|CCBot|PerplexityBot|Perplexity-User|Bytespider|Meta-External|Amazonbot|cohere-ai|Diffbot|YouBot|Timpibot|ImagesiftBot|HeadlessChrome|python-requests|python-urllib|curl\/|wget|scrapy|Go-http-client|node-fetch|axios/i;
+
 const LIST_HIDE = ["공급면적", "방향"];   // 목록에서는 빼고, 상세에서만 주는 열
 
 export default {
@@ -50,6 +52,8 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: okOrigin ? 204 : 403, headers: okOrigin ? cors(origin) : {} });
     }
+    // AI 수집 로봇·자동화 도구는 바로 거절 (User-Agent 기준 — 이름을 숨기는 로봇은 아래 Turnstile·입장권이 막음)
+    if (AI_BOT.test(request.headers.get("User-Agent") || "")) return res(403, { ok: false, error: "forbidden" });
     // 손님 사이트(허용된 주소)에서 온 요청만 받음
     if (!okOrigin) return res(403, { ok: false, error: "forbidden" });
     if (isBlocked(ip)) return res(429, { ok: false, error: "blocked" });

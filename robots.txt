@@ -1,0 +1,30 @@
+# 와방 — 검색엔진·AI 수집 전체 차단
+# ※ robots.txt는 '도메인 맨 앞'(예: https://도메인/robots.txt)에 있어야 효력이 있어요.
+#    GitHub Pages 프로젝트 주소(…github.io/wa-bang/)에서는 무시됩니다 → Cloudflare 등 자체 도메인으로 옮기면 작동.
+
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: OAI-SearchBot
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
+User-agent: meta-externalfetcher
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: Diffbot
+User-agent: YouBot
+User-agent: Timpibot
+User-agent: omgili
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: *
+Disallow: /
