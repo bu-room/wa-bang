@@ -1,0 +1,11 @@
+// Cloudflare 배포 설정 — 저장소에 올리면 자동 배포
+{
+  "name": "wabang-test",
+  "main": "edge/site.js",
+  "compatibility_date": "2025-11-01",
+  "assets": {
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  }
+}

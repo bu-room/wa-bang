@@ -94,7 +94,7 @@ const CONFIG = {
   SHOW_BLANK_STATUS: true,  // true: 상태가 비어 있어도 표시
   SHOW_DONE: true,          // true: 거래완료 매물을 회색으로 표시 / false: 완전히 숨김
   /* ---- 손님 → 중개사 문의 보내기 ---- */
-  CHATBOT_URL: "https://skylee-lang.github.io/wa-bang/chat/",          // 조건 접수 챗봇 주소
+  CHATBOT_URL: location.origin + location.pathname.replace(/[^/]*$/, "") + "chat/",   // 조건 접수 챗봇 주소 (지금 사이트 주소 기준 자동)
   KAKAO_OPENCHAT_URL: "https://open.kakao.com/o/sPQtqVTi",    // 오픈카톡 ('중개사에게 보내기'의 큰 버튼)
   INSTAGRAM_DM_URL: "https://www.instagram.com/_u/bu_room/",  // 휴대폰: 인스타 앱 프로필
   INSTAGRAM_WEB_URL: "https://www.instagram.com/bu_room/",    // 컴퓨터: 일반 프로필

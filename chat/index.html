@@ -116,7 +116,7 @@
   <script>
     const CONFIG = {
       PHONE: "010-4445-6432",                                   // 중개사 휴대폰 번호
-      LISTING_SITE_URL: "https://skylee-lang.github.io/wa-bang/", // 와방 매물 보는 사이트 주소
+      LISTING_SITE_URL: /\/chat\/(index\.html)?$/.test(location.pathname) ? location.origin + location.pathname.replace(/chat\/(index\.html)?$/, "") : "https://skylee-lang.github.io/wa-bang/", // 매물 사이트 주소 (같은 사이트 안이면 자동)
       KAKAO_OPENCHAT_URL: "https://open.kakao.com/o/sPQtqVTi",   // 오픈카톡 (요약 카드의 노란 버튼)
       // 매물 문지기 주소 (동네 버튼을 자동으로 만들 때 사용, 매물 사이트 CONFIG.API_URL 과 같은 값)
       API_URL: "https://wabang-gate.wabang0909.workers.dev"

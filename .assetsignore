@@ -1,0 +1,14 @@
+# 사이트에 공개되면 안 되는 파일 (Cloudflare 배포에서 제외)
+.git
+.github
+.assetsignore
+.nojekyll
+.gitignore
+wrangler.jsonc
+edge
+worker
+apps-script
+tools
+README.md
+*.src.html
+node_modules
